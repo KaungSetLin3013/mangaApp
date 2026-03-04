@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漫画 Reader</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --ink: #0a0a0f;
+    --accent: #c0392b;
+    --accent2: #e74c3c;
+    --gold: #f0a500;
+    --blue: #2980b9;
+    --green: #27ae60;
+    --gray: #8a8a9a;
+    --panel-bg: #1a1a24;
+    --panel-surface: #22222e;
+    --panel-border: #333345;
+    --text: #e8e4dc;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Space Mono', monospace;
+    background: var(--ink);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--panel-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo span { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--gray); font-weight: 400; }
+
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 8px 14px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+
+  /* ── SEARCH + FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+
+  #search-input {
+    width: 100%;
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    padding: 8px 10px 8px 30px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #search-input:focus { border-color: var(--accent); }
+  #search-input::placeholder { color: var(--gray); opacity: 0.6; }
+
+  .filter-select {
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    padding: 8px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .filter-select:focus { border-color: var(--accent); }
+
+  .filter-chip {
+    font-size: 0.62rem;
+    padding: 4px 10px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel-surface);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .results-count {
+    font-size: 0.62rem;
+    color: var(--gray);
+    white-space: nowrap;
+    align-self: center;
+  }
+
+  /* ── LIBRARY ── */
+  #library-view { display: flex; flex-direction: column; min-height: 100vh; }
+
+  .library-body {
+    flex: 1;
+    padding: 24px 32px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 0.63rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--gray);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--panel-border); }
+
+  /* ── GRID ── */
+  .manga-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    gap: 18px;
+  }
+
+  .manga-card { cursor: pointer; transition: transform 0.2s; position: relative; user-select: none; }
+  .manga-card:hover { transform: translateY(-3px); }
+  .manga-card.hidden { display: none; }
+
+  .manga-thumb {
+    width: 100%;
+    aspect-ratio: 2/3;
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .manga-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .manga-thumb .page-count {
+    position: absolute;
+    bottom: 5px; right: 5px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-size: 0.58rem;
+    padding: 2px 5px;
+  }
+
+  /* Lang badge */
+  .lang-badge {
+    position: absolute;
+    top: 5px; right: 5px;
+    background: rgba(41,128,185,0.9);
+    color: #fff;
+    font-size: 0.55rem;
+    padding: 2px 5px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .fav-star {
+    position: absolute;
+    top: 5px; left: 5px;
+    width: 24px; height: 24px;
+    background: rgba(0,0,0,0.65);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: transform 0.15s;
+    z-index: 5;
+    color: #666;
+    border-radius: 2px;
+  }
+
+  .fav-star:hover { transform: scale(1.25); }
+  .fav-star.active { color: var(--gold); }
+
+  /* Info button */
+  .info-btn {
+    position: absolute;
+    bottom: 5px; left: 5px;
+    width: 22px; height: 22px;
+    background: rgba(0,0,0,0.65);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    color: #aaa;
+    border-radius: 2px;
+    z-index: 5;
+    transition: color 0.15s;
+  }
+
+  .info-btn:hover { color: #fff; }
+
+  .card-progress { height: 3px; background: var(--panel-border); width: 100%; }
+  .card-progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+
+  .manga-card-title {
+    font-size: 0.68rem;
+    margin-top: 6px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .manga-card-meta {
+    font-size: 0.58rem;
+    color: var(--gray);
+    margin-top: 3px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .meta-artist {
+    color: #7fb3d3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .meta-lang {
+    color: #82c9a0;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── DETAIL POPUP ── */
+  #detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 800;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  #detail-overlay.open { display: flex; }
+
+  #detail-popup {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .detail-cover {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .detail-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+  }
+
+  .detail-cover-title {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 20px 16px 12px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1rem;
+    color: #fff;
+    line-height: 1.4;
+  }
+
+  .detail-body { padding: 16px; }
+
+  .detail-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+  }
+
+  .detail-label {
+    color: var(--gray);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-width: 60px;
+    padding-top: 1px;
+  }
+
+  .detail-value { color: var(--text); flex: 1; line-height: 1.6; }
+
+  .detail-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.6rem;
+    margin: 2px 3px 2px 0;
+    border: 1px solid var(--panel-border);
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .detail-tag:hover { border-color: var(--accent); color: var(--accent); }
+  .detail-tag.lang-tag { border-color: rgba(41,128,185,0.5); color: #7fb3d3; }
+  .detail-tag.artist-tag { border-color: rgba(130,201,160,0.5); color: #82c9a0; }
+
+  .detail-divider { height: 1px; background: var(--panel-border); margin: 12px 0; }
+
+  .detail-progress-bar {
+    height: 4px;
+    background: var(--panel-border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .detail-progress-fill { height: 100%; background: var(--accent); transition: width 0.5s; }
+
+  .detail-actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px 16px;
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 28px; height: 28px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid #444;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.15s;
+  }
+
+  .detail-close:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ── EMPTY / INSTRUCTIONS ── */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 55vh; gap: 18px; text-align: center;
+  }
+
+  .empty-icon { font-size: 3.2rem; opacity: 0.22; }
+  .empty-title { font-family: 'Noto Serif JP', serif; font-size: 1.25rem; color: var(--gray); }
+  .empty-desc { font-size: 0.73rem; color: var(--gray); opacity: 0.65; max-width: 360px; line-height: 1.9; }
+
+  .instructions {
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    padding: 18px 22px;
+    max-width: 500px;
+    text-align: left;
+  }
+
+  .instructions h3 { font-size: 0.68rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .instructions ol { font-size: 0.7rem; color: var(--text); line-height: 2.1; padding-left: 16px; opacity: 0.85; }
+  .instructions code { background: var(--ink); padding: 1px 5px; color: var(--accent2); font-size: 0.66rem; }
+
+  .no-results {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--gray);
+    font-size: 0.78rem;
+    opacity: 0.5;
+    display: none;
+  }
+
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 22px; left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-left: 3px solid var(--accent);
+    padding: 10px 20px; font-size: 0.7rem; z-index: 9999;
+    transition: transform 0.3s; white-space: nowrap; pointer-events: none;
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── READER ── */
+  #reader-view { display: none; flex-direction: column; min-height: 100vh; background: #000; }
+
+  .reader-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px;
+    background: rgba(0,0,0,0.92);
+    border-bottom: 1px solid #222;
+    position: sticky; top: 0; z-index: 200; gap: 8px;
+  }
+
+  .reader-title { font-size: 0.76rem; font-family: 'Noto Serif JP', serif; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #bbb; text-align: center; }
+
+  .reader-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+  .mode-toggle { display: flex; border: 1px solid #333; overflow: hidden; }
+  .mode-toggle button { font-family: 'Space Mono', monospace; font-size: 0.6rem; padding: 5px 8px; background: transparent; border: none; color: #777; cursor: pointer; transition: all 0.15s; }
+  .mode-toggle button.active { background: var(--accent); color: #fff; }
+
+
+  .fav-reader-btn-styled {
+    display: flex !important;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px !important;
+    font-size: 0.68rem !important;
+    transition: all 0.2s !important;
+  }
+
+  #fav-reader-star {
+    font-size: 1rem;
+    line-height: 1;
+    transition: transform 0.2s;
+  }
+
+  .fav-reader-btn-styled.fav-on {
+    color: var(--gold) !important;
+    border-color: var(--gold) !important;
+    background: rgba(240,165,0,0.1) !important;
+  }
+
+  .fav-reader-btn-styled.fav-pop #fav-reader-star {
+    transform: scale(1.6);
+  }
+
+  @keyframes fav-burst {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.7); }
+    100% { transform: scale(1); }
+  }
+
+  .fav-pop #fav-reader-star { animation: fav-burst 0.3s ease-out; }
+
+  .reader-btn { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 5px 9px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.15s; }
+  .reader-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .reader-btn.fav-on { color: var(--gold); border-color: var(--gold); }
+
+  .dir-hint { font-size: 0.58rem; color: var(--gray); background: #1a1a1a; padding: 3px 7px; border: 1px solid #333; cursor: pointer; user-select: none; }
+
+  .reader-content { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+
+  .page-display { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+
+  .page-display img {
+    max-width: 100%;
+    max-height: calc(100vh - 88px);
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+    display: block;
+  }
+
+  .double-mode .page-display img { max-width: 49%; }
+
+  .nav-overlay {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.88));
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    z-index: 150; opacity: 0; transition: opacity 0.25s;
+  }
+
+  #reader-view:hover .nav-overlay,
+  #reader-view.touch-show .nav-overlay { opacity: 1; }
+  .scroll-mode .nav-overlay { display: none; }
+
+  .nav-btn { font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 9px 16px; background: rgba(192,57,43,0.85); border: none; color: #fff; cursor: pointer; transition: background 0.2s; min-width: 70px; }
+  .nav-btn:hover { background: var(--accent2); }
+  .nav-btn:disabled { background: #2a2a2a; color: #555; cursor: default; }
+
+  .page-indicator { font-size: 0.7rem; color: #aaa; flex: 1; text-align: center; }
+
+  .scroll-progress { position: fixed; bottom: 0; left: 0; height: 3px; background: var(--accent); z-index: 300; transition: width 0.1s; display: none; }
+
+  .thumb-strip {
+    position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 3px;
+    background: rgba(0,0,0,0.88);
+    padding: 6px; border: 1px solid #333;
+    max-width: 90vw; overflow-x: auto;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; border-radius: 3px;
+  }
+
+  .thumb-strip::-webkit-scrollbar { height: 3px; }
+  .thumb-strip::-webkit-scrollbar-thumb { background: #444; }
+  .thumb-strip.visible { opacity: 1; pointer-events: all; }
+  .thumb-item { width: 42px; height: 63px; object-fit: cover; cursor: pointer; opacity: 0.45; transition: opacity 0.2s; flex-shrink: 0; }
+  .thumb-item.active { opacity: 1; outline: 2px solid var(--accent); }
+
+  .keyboard-hint {
+    position: fixed; top: 55px; right: 12px;
+    background: rgba(0,0,0,0.88); border: 1px solid #333;
+    padding: 10px 13px; font-size: 0.6rem; color: #777; line-height: 2; z-index: 300;
+    opacity: 0; transition: opacity 0.25s;
+  }
+
+  .keyboard-hint.visible { opacity: 1; }
+  .keyboard-hint kbd { background: #222; border: 1px solid #444; padding: 1px 5px; color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.58rem; }
+
+  #zoom-indicator {
+    position: fixed; top: 55px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.8); color: #fff; padding: 4px 12px; font-size: 0.66rem;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 400;
+  }
+
+  #zoom-indicator.show { opacity: 1; }
+
+  #settings-panel {
+    position: fixed; top: 44px; right: 0; bottom: 0; width: 250px;
+    background: var(--panel-bg); border-left: 1px solid var(--panel-border);
+    padding: 16px; z-index: 500; transform: translateX(100%); transition: transform 0.28s; overflow-y: auto;
+  }
+
+  #settings-panel.open { transform: translateX(0); }
+
+  .settings-title { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--panel-border); }
+  .setting-row { margin-bottom: 12px; }
+  .setting-label { font-size: 0.66rem; color: var(--gray); margin-bottom: 5px; display: block; }
+  .setting-input { width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--text); padding: 7px; font-family: 'Space Mono', monospace; font-size: 0.7rem; }
+  .checkbox-row { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; cursor: pointer; }
+  .checkbox-row input { accent-color: var(--accent); }
+  .checkbox-row label { font-size: 0.68rem; cursor: pointer; }
+
+  .drag-over { outline: 2px dashed var(--accent); outline-offset: -6px; }
+
+  @media (max-width: 600px) {
+    .header { padding: 10px 12px; }
+    .logo { font-size: 1.1rem; }
+    .library-body { padding: 12px; }
+    .manga-grid { grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 12px; }
+    .reader-header { padding: 6px 8px; flex-wrap: wrap; }
+    .mode-toggle button { padding: 4px 6px; }
+    .nav-btn { padding: 8px 10px; min-width: 52px; }
+    .keyboard-hint { display: none; }
+    .tab-btn { padding: 7px 9px; }
+    #detail-popup { max-width: 100%; }
+  }
+
+
+  .new-badge {
+    position: absolute;
+    bottom: 28px; left: 5px;
+    background: var(--green);
+    color: #fff;
+    font-size: 0.55rem;
+    padding: 2px 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: bold;
+    z-index: 7;
+    pointer-events: none;
+  }
+
+
+  .skeleton-thumb { opacity: 0.75; }
+
+  .no-cover {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; opacity: 0.2;
+    background: var(--panel-surface);
+  }
+
+  .skeleton-lock {
+    position: absolute;
+    bottom: 5px; right: 26px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  /* ── DELETE MODE ── */
+  .delete-mode-btn-active { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+
+  .manga-card.selectable { cursor: pointer; }
+  .manga-card.selectable .manga-thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.15s, background 0.15s;
+    z-index: 4;
+  }
+  .manga-card.selectable:hover .manga-thumb::after { border-color: var(--accent); }
+  .manga-card.selected .manga-thumb::after { border-color: var(--accent); background: rgba(192,57,43,0.18); }
+
+  .select-checkbox {
+    position: absolute;
+    top: 5px; right: 5px;
+    width: 20px; height: 20px;
+    border: 2px solid #fff;
+    background: rgba(0,0,0,0.55);
+    border-radius: 3px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #fff;
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  .manga-card.selectable .select-checkbox { display: flex; }
+  .manga-card.selected .select-checkbox { background: var(--accent); border-color: var(--accent); }
+
+  #delete-toolbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  #delete-toolbar.visible { display: flex; }
+
+  .delete-count { font-size: 0.72rem; color: var(--text); flex: 1; }
+  .delete-count span { color: var(--accent); font-weight: bold; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ LIBRARY ══════════════════ -->
+<div id="library-view">
+  <header class="header">
+    <div class="logo">漫画 <span>READER</span></div>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="open-folder-btn">📂 Open Folder</button>
+      <button class="btn" id="delete-mode-btn">🗑 Delete</button>
+    </div>
+  </header>
+
+  <div class="library-body">
+    <!-- DELETE TOOLBAR -->
+    <div id="delete-toolbar">
+      <div class="delete-count"><span id="delete-selected-count">0</span> selected</div>
+      <button class="btn" id="delete-select-all-btn">Select All</button>
+      <button class="btn btn-primary" id="delete-confirm-btn" style="background:var(--accent)">🗑 Delete Selected</button>
+      <button class="btn" id="delete-cancel-btn">Cancel</button>
+    </div>
+
+    <div class="empty-state" id="empty-state">
+        <div class="empty-icon">📚</div>
+        <div class="empty-title">Your library is empty</div>
+        <div class="empty-desc">Open your root manga folder — each subfolder becomes one series.</div>
+        <div class="instructions">
+          <h3>How to use</h3>
+          <ol>
+            <li>Click <strong>"Open Folder"</strong> → select your manga root folder</li>
+            <li>Folder names are parsed automatically:<br>
+              <code>Title (ignore)[Artist][Language]</code></li>
+            <li>Bracket groups: <code>()</code> ignored · <code>[Artist]</code> · <code>[Language]</code></li>
+            <li>Search by title, artist, or language in the filter bar</li>
+            <li>Click ⓘ on any card to see full details</li>
+            <li>★ Star manga to add to Favourites · progress auto-saved</li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="manga-section" style="display:none">
+        <div class="section-title" id="manga-count-label">LIBRARY</div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Search title, artist, language…">
+          </div>
+          <select class="filter-select" id="artist-filter">
+            <option value="">All Artists</option>
+          </select>
+          <select class="filter-select" id="lang-filter">
+            <option value="">All Languages</option>
+          </select>
+          <button class="filter-chip" id="filter-fav-only">★ Fav only</button>
+          <span class="results-count" id="results-count"></span>
+        </div>
+
+        <div class="no-results" id="no-results">No manga match your search.</div>
+        <div class="manga-grid" id="manga-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ READER ══════════════════ -->
+<div id="reader-view">
+  <header class="reader-header">
+    <button class="reader-btn" id="back-btn">← BACK</button>
+    <div class="reader-title" id="reader-title">—</div>
+    <div class="reader-controls">
+      <button class="reader-btn fav-reader-btn-styled" id="fav-reader-btn" title="Favourite (S)"><span id="fav-reader-star">☆</span><span id="fav-reader-label">FAV</span></button>
+      <div class="dir-hint" id="dir-display" title="Direction (D)">RTL</div>
+      <div class="mode-toggle">
+        <button id="mode-single" class="active">1P</button>
+        <button id="mode-double">2P</button>
+        <button id="mode-scroll">↕</button>
+      </div>
+      <button class="reader-btn" id="toggle-thumbs-btn">⬜</button>
+      <button class="reader-btn" id="settings-btn">⚙</button>
+    </div>
+  </header>
+
+  <div class="reader-content" id="reader-content"></div>
+
+  <div class="nav-overlay" id="nav-overlay">
+    <button class="nav-btn" id="prev-btn">← PREV</button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+      <div class="page-indicator" id="page-indicator">— / —</div>
+      <input type="range" id="page-scrubber" min="0" max="0" value="0"
+             style="width:100%;max-width:420px;accent-color:var(--accent)">
+    </div>
+    <button class="nav-btn" id="next-btn">NEXT →</button>
+  </div>
+
+  <div class="thumb-strip" id="thumb-strip"></div>
+  <div class="scroll-progress" id="scroll-progress"></div>
+  <div id="zoom-indicator"></div>
+
+  <div class="keyboard-hint" id="keyboard-hint">
+    <kbd>←</kbd><kbd>→</kbd> Navigate<br>
+    <kbd>Home</kbd><kbd>End</kbd> First/Last<br>
+    <kbd>F</kbd> Fullscreen · <kbd>D</kbd> Dir<br>
+    <kbd>S</kbd> Star · <kbd>Z</kbd> Zoom<br>
+    <kbd>?</kbd> Toggle hints
+  </div>
+</div>
+
+<!-- ══════════════════ DETAIL POPUP ══════════════════ -->
+<div id="detail-overlay">
+  <div id="detail-popup">
+    <button class="detail-close" id="detail-close-btn">✕</button>
+    <div class="detail-cover">
+      <img id="detail-cover-img" src="" alt="">
+      <div class="detail-cover-title" id="detail-cover-title"></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-row" id="detail-row-artist" style="display:none">
+        <span class="detail-label">Artist</span>
+        <span class="detail-value" id="detail-artist"></span>
+      </div>
+      <div class="detail-row" id="detail-row-lang" style="display:none">
+        <span class="detail-label">Language</span>
+        <span class="detail-value" id="detail-lang"></span>
+      </div>
+      <div class="detail-row" id="detail-row-tags" style="display:none">
+        <span class="detail-label">Tags</span>
+        <span class="detail-value" id="detail-tags"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Pages</span>
+        <span class="detail-value" id="detail-pages"></span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Raw name</span>
+        <span class="detail-value" id="detail-raw" style="color:var(--gray);font-size:0.65rem;word-break:break-all;"></span> <span id="detail-fav-note" style="display:none;font-size:0.62rem;color:var(--gold);margin-left:6px;">@ = auto-favourited</span>
+      </div>
+      <div class="detail-divider"></div>
+      <div class="detail-row">
+        <span class="detail-label">Progress</span>
+        <div style="flex:1">
+          <div style="font-size:0.68rem;color:var(--text);margin-bottom:5px" id="detail-prog-text">—</div>
+          <div class="detail-progress-bar"><div class="detail-progress-fill" id="detail-prog-fill" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-primary" id="detail-read-btn" style="flex:1">▶ READ</button>
+      <button class="btn" id="detail-fav-btn" style="min-width:80px">☆ FAV</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings -->
+<div id="settings-panel">
+  <div class="settings-title">Settings</div>
+  <div class="setting-row">
+    <span class="setting-label">Background color</span>
+    <input type="color" id="bg-color" class="setting-input" value="#000000" style="height:32px;padding:2px">
+  </div>
+  <div class="setting-row">
+    <label class="checkbox-row"><input type="checkbox" id="fit-width"> <label for="fit-width">Fit to width</label></label>
+    <label class="checkbox-row"><input type="checkbox" id="auto-double"> <label for="auto-double">Auto-double on wide screen</label></label>
+  </div>
+  <button class="btn btn-primary" id="close-settings-btn" style="width:100%;margin-top:14px">Close</button>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="file-input" multiple webkitdirectory style="display:none" accept="image/*">
+
+<script>
+// ══════════════════════════════════════════════
+//  FILENAME PARSER
+// ══════════════════════════════════════════════
+function parseFilename(raw) {
+  let s = raw.replace(/\.\w{2,5}$/, '').trim();
+  const isFav = s.includes('@');
+  const isNew = s.includes('$');
+  s = s.replace(/[@$]/g, '').trim();
+  const artists = [], langs = [], tags = [];
+  const LANGS = new Set(['english','japanese','chinese','korean','spanish','french',
+    'german','italian','portuguese','russian','thai','vietnamese','arabic',
+    'en','jp','zh','ko','es','fr','de','it','pt','ru','eng','jpn','chi','kor']);
+  s = s.replace(/\(([^)]*)\)/g, () => ' ');
+  s = s.replace(/\[([^\]]*)\]/g, (_, v) => {
+    v = v.trim(); if (!v) return ' ';
+    if (LANGS.has(v.toLowerCase())) langs.push(v);
+    else if (!artists.length && v.length < 60) artists.push(v);
+    else tags.push(v);
+    return ' ';
+  });
+  const title = s.replace(/\s+/g, ' ').trim() || raw.replace(/[@$]/g, '').trim();
+  return { title, artists, langs, tags, raw, isFav, isNew };
+}
+
+// ══════════════════════════════════════════════
+//  INDEXEDDB
+// ══════════════════════════════════════════════
+const DB_NAME = 'MangaReaderDB', DB_VER = 7;
+let db = null;
+
+function openDB() {
+  return new Promise(res => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      [['meta','name'],['favs','name'],['progress','name'],['newItems','name']].forEach(([s,k]) => {
+        if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: k });
+      });
+      if (!d.objectStoreNames.contains('settings')) d.createObjectStore('settings', { keyPath: 'key' });
+    };
+    req.onsuccess = e => { db = e.target.result; res(db); };
+    req.onerror   = () => res(null);
+  });
+}
+
+const idbGet    = (store, key) => new Promise(res => { if(!db)return res(null); const r=db.transaction(store,'readonly').objectStore(store).get(key); r.onsuccess=()=>res(r.result||null); r.onerror=()=>res(null); });
+const idbGetAll = store => new Promise(res => { if(!db)return res([]); const r=db.transaction(store,'readonly').objectStore(store).getAll(); r.onsuccess=()=>res(r.result||[]); r.onerror=()=>res([]); });
+const idbPut    = (store, obj) => new Promise(res => { if(!db)return res(); const tx=db.transaction(store,'readwrite'); tx.objectStore(store).put(obj); tx.oncomplete=res; tx.onerror=res; });
+const idbDelete = (store, key) => new Promise(res => { if(!db)return res(); const tx=db.transaction(store,'readwrite'); tx.objectStore(store).delete(key); tx.oncomplete=res; tx.onerror=res; });
+
+// ══════════════════════════════════════════════
+//  FILE SYSTEM ACCESS API
+// ══════════════════════════════════════════════
+const FSAPI = 'showDirectoryPicker' in window;
+const IMAGE_EXTS = /\.(jpe?g|png|webp|gif|avif)$/i;
+let savedDirHandles = [];
+
+async function loadSavedHandles() {
+  const rec = await idbGet('settings','dirHandles');
+  if (!rec?.value?.length) return false;
+  savedDirHandles = rec.value;
+  return true;
+}
+async function saveDirHandles() { await idbPut('settings',{key:'dirHandles',value:savedDirHandles}); }
+
+async function ensurePermission(handle) {
+  if (!handle) return false;
+  try {
+    let p = await handle.queryPermission({mode:'read'});
+    if (p==='granted') return true;
+    p = await handle.requestPermission({mode:'read'});
+    return p==='granted';
+  } catch(e) { return false; }
+}
+
+async function readDirHandle(handle, path) {
+  const files = [];
+  try {
+    for await (const [name, entry] of handle.entries()) {
+      const full = path ? `${path}/${name}` : name;
+      if (entry.kind==='file' && IMAGE_EXTS.test(name)) {
+        try {
+          const file = await entry.getFile();
+          Object.defineProperty(file,'webkitRelativePath',{value:full,writable:true,configurable:true});
+          files.push(file);
+        } catch(e) {}
+      } else if (entry.kind==='directory') {
+        files.push(...await readDirHandle(entry, full));
+      }
+    }
+  } catch(e) { console.error('readDirHandle',path,e); }
+  return files;
+}
+
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const state = {
+  library:[], currentManga:null, currentPage:0,
+  mode:'single', rtl:true, fitWidth:false, thumbsVisible:false,
+  favs:new Set(), progress:{}, newItems:new Set(),
+  detailIndex:null, filterFavOnly:false,
+};
+
+// ══════════════════════════════════════════════
+//  DOM REFS
+// ══════════════════════════════════════════════
+const $           = id => document.getElementById(id);
+const libraryView   = $('library-view');
+const readerView    = $('reader-view');
+const mangaGrid     = $('manga-grid');
+const mangaSection  = $('manga-section');
+const emptyState    = $('empty-state');
+const readerContent = $('reader-content');
+const readerTitle   = $('reader-title');
+const pageIndicator = $('page-indicator');
+const pageScrubber  = $('page-scrubber');
+const prevBtn       = $('prev-btn');
+const nextBtn       = $('next-btn');
+const thumbStrip    = $('thumb-strip');
+const scrollProg    = $('scroll-progress');
+const favReaderBtn  = $('fav-reader-btn');
+const detailOverlay = $('detail-overlay');
+const settingsPanel = $('settings-panel');
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+async function init() {
+  await openDB();
+  (await idbGetAll('favs')).forEach(r => state.favs.add(r.name));
+  (await idbGetAll('progress')).forEach(r => { state.progress[r.name]=r.page; });
+  (await idbGetAll('newItems')).forEach(r => state.newItems.add(r.name));
+
+  // Load preferences
+  const prefs = await idbGet('settings','prefs');
+  if (prefs?.value) {
+    const v = prefs.value;
+    state.mode      = v.mode      || 'single';
+    state.rtl       = v.rtl       ?? true;
+    state.fitWidth  = v.fitWidth  || false;
+    state.filterFavOnly = v.filterFavOnly || false;
+    if (v.bgColor) readerView.style.background = readerContent.style.background = v.bgColor;
+    $('fit-width').checked = state.fitWidth;
+    $('filter-fav-only').classList.toggle('active', state.filterFavOnly);
+  }
+
+  // Show library from cached meta (no file permission needed)
+  const metaRecs = await idbGetAll('meta');
+  if (metaRecs.length) {
+    metaRecs.forEach(rec => state.library.push({
+      name: rec.name,
+      parsed: rec.parsed || {title:rec.name,artists:[],langs:[],tags:[],isNew:false,isFav:false},
+      pages:[], pageCount:rec.pageCount||0,
+      thumb:rec.thumb||'', urls:null, skeleton:true,
+    }));
+    state.library.sort((a,b)=>a.parsed.title.localeCompare(b.parsed.title,undefined,{numeric:true}));
+    renderLibrary();
+  }
+
+  // Reload files from saved handles
+  if (FSAPI) {
+    const hasSaved = await loadSavedHandles();
+    if (hasSaved) {
+      const perms = await Promise.all(savedDirHandles.map(h=>h.queryPermission({mode:'read'}).catch(()=>'prompt')));
+      if (perms.some(p=>p==='granted')) {
+        for (let i=0;i<savedDirHandles.length;i++)
+          if (perms[i]==='granted') await loadFromHandle(savedDirHandles[i]);
+      } else {
+        showReloadBanner();
+      }
+    }
+  }
+}
+
+init();
+
+// ══════════════════════════════════════════════
+//  OPEN FOLDER
+// ══════════════════════════════════════════════
+$('open-folder-btn').addEventListener('click', async () => {
+  if (FSAPI) {
+    try {
+      const handle = await window.showDirectoryPicker({mode:'read'});
+      const i = savedDirHandles.findIndex(h=>h.name===handle.name);
+      if (i>=0) savedDirHandles[i]=handle; else savedDirHandles.push(handle);
+      await saveDirHandles();
+      hideReloadBanner();
+      await loadFromHandle(handle);
+    } catch(e) {
+      if (e.name!=='AbortError') { showToast('Error: '+(e.message||e.name)); console.error(e); }
+    }
+    return;
+  }
+  $('file-input').click();
+});
+
+$('file-input').addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  if (files.length) processFiles(files);
+  e.target.value='';
+});
+
+async function loadFromHandle(handle) {
+  showToast('⏳ Loading…');
+  const files = await readDirHandle(handle, handle.name);
+  if (!files.length) { showToast('No images found in folder'); return; }
+  processFiles(files);
+}
+
+// ══════════════════════════════════════════════
+//  RELOAD BANNER
+// ══════════════════════════════════════════════
+function showReloadBanner() {
+  let el = $('reload-banner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id='reload-banner';
+    el.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--panel-bg);border-top:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:0.7rem;';
+    document.body.appendChild(el);
+  }
+  el.innerHTML='';
+  const msg=document.createElement('span'); msg.style.cssText='color:var(--gray);flex:1;'; msg.textContent='🔒 Click to restore file access';
+  const btn=document.createElement('button'); btn.style.cssText="font-size:0.7rem;padding:6px 16px;background:var(--accent);border:none;color:#fff;cursor:pointer;"; btn.textContent='📂 Load Files';
+  btn.addEventListener('click',async()=>{
+    let ok=false;
+    for (const h of savedDirHandles) if (await ensurePermission(h)) { await loadFromHandle(h); ok=true; }
+    if (ok) hideReloadBanner(); else showToast('Permission denied — use Open Folder');
+  });
+  el.append(msg,btn); el.style.display='flex';
+}
+function hideReloadBanner() { const el=$('reload-banner'); if(el) el.style.display='none'; }
+
+// ══════════════════════════════════════════════
+//  DRAG & DROP
+// ══════════════════════════════════════════════
+document.body.addEventListener('dragover', e=>{e.preventDefault(); libraryView.classList.add('drag-over');});
+document.body.addEventListener('dragleave',()=>libraryView.classList.remove('drag-over'));
+document.body.addEventListener('drop',async e=>{
+  e.preventDefault(); libraryView.classList.remove('drag-over');
+  const items=[...(e.dataTransfer.items||[])].map(i=>i.webkitGetAsEntry?.()).filter(Boolean);
+  processFiles(await readEntries(items));
+});
+function readEntries(entries) {
+  return Promise.all(entries.map(e=>e.isFile?new Promise(r=>e.file(f=>r([f]))):readFSDir(e))).then(a=>a.flat());
+}
+function readFSDir(dir) {
+  return new Promise(resolve=>{
+    const reader=dir.createReader(), all=[];
+    const go=()=>reader.readEntries(ents=>{if(!ents.length){resolve(readEntries(all));return;}all.push(...ents);go();});
+    go();
+  });
+}
+
+// ══════════════════════════════════════════════
+//  PROCESS FILES
+// ══════════════════════════════════════════════
+function processFiles(files) {
+  const groups={};
+  for (const file of files) {
+    if (!IMAGE_EXTS.test(file.name)) continue;
+    const rel=file.webkitRelativePath||file.name;
+    const parts=rel.split('/');
+    const group=parts.length>=3?parts[1]:parts.length===2?parts[0]:'Unsorted';
+    if (!groups[group]) groups[group]=[];
+    groups[group].push(file);
+  }
+  const count=Object.keys(groups).length;
+  if (!count) { showToast('No images found'); return; }
+
+  const nat=(a,b)=>(a.webkitRelativePath||a.name).localeCompare(b.webkitRelativePath||b.name,undefined,{numeric:true});
+
+  for (const [name,pages] of Object.entries(groups)) {
+    pages.sort(nat);
+    const parsed=parseFilename(name);
+    const thumb=URL.createObjectURL(pages[0]);
+    const entry={name,parsed,pages,pageCount:pages.length,thumb,urls:null,skeleton:false};
+    const idx=state.library.findIndex(m=>m.name===name);
+    if (idx>=0) {
+      const old=state.library[idx];
+      if (old.thumb?.startsWith('blob:')) try{URL.revokeObjectURL(old.thumb);}catch(e){}
+      if (old.urls) old.urls.forEach(u=>{try{URL.revokeObjectURL(u);}catch(e){}});
+      state.library[idx]=entry;
+    } else {
+      state.library.push(entry);
+    }
+    if (parsed.isFav&&!state.favs.has(name)) { state.favs.add(name); idbPut('favs',{name}); }
+    if (parsed.isNew&&!state.newItems.has(name)) { state.newItems.add(name); idbPut('newItems',{name}); }
+    const fr=new FileReader();
+    fr.onload=()=>idbPut('meta',{name,pageCount:pages.length,
+      parsed:{title:parsed.title,artists:parsed.artists,langs:parsed.langs,tags:parsed.tags,isNew:parsed.isNew,isFav:parsed.isFav},
+      thumb:fr.result});
+    fr.readAsDataURL(pages[0]);
+  }
+  state.library.sort((a,b)=>a.parsed.title.localeCompare(b.parsed.title,undefined,{numeric:true}));
+  renderLibrary();
+  showToast(`✓ ${count} manga loaded`);
+}
+
+// ══════════════════════════════════════════════
+//  RENDER LIBRARY
+// ══════════════════════════════════════════════
+function renderLibrary() {
+  const has=state.library.length>0;
+  emptyState.style.display  =has?'none':'flex';
+  mangaSection.style.display=has?'block':'none';
+  $('manga-count-label').textContent=`LIBRARY — ${state.library.length} MANGA`;
+
+  const allArtists=[...new Set(state.library.flatMap(m=>m.parsed.artists||[]))].sort();
+  const allLangs  =[...new Set(state.library.flatMap(m=>m.parsed.langs||[]))].sort();
+  const asel=$('artist-filter'), lsel=$('lang-filter');
+  const ca=asel.value, cl=lsel.value;
+  asel.innerHTML='<option value="">All Artists</option>'+allArtists.map(a=>`<option value="${a}">${a}</option>`).join('');
+  lsel.innerHTML='<option value="">All Languages</option>'+allLangs.map(l=>`<option value="${l}">${l}</option>`).join('');
+  asel.value=ca; lsel.value=cl;
+
+  mangaGrid.innerHTML='';
+  state.library.forEach((m,i)=>mangaGrid.appendChild(makeCard(m,i)));
+  applyFilters();
+}
+
+// ══════════════════════════════════════════════
+//  MAKE CARD
+// ══════════════════════════════════════════════
+function makeCard(manga, idx) {
+  const isFav=state.favs.has(manga.name);
+  const prog=state.progress[manga.name]||0;
+  const total=manga.pages.length||manga.pageCount||0;
+  const pct=total>1?(prog/(total-1))*100:0;
+  const isSkeleton=!!manga.skeleton;
+  const {title,artists=[],langs=[]}=manga.parsed;
+
+  const card=document.createElement('div');
+  card.className='manga-card';
+  card.dataset.title    =title.toLowerCase();
+  card.dataset.artists  =artists.join(',').toLowerCase();
+  card.dataset.langs    =langs.join(',').toLowerCase();
+  card.dataset.fav      =isFav?'1':'0';
+  card.dataset.idx      =idx;
+  card.dataset.mangaName=manga.name;
+
+  card.innerHTML=`
+    <div class="manga-thumb${isSkeleton?' skeleton-thumb':''}">
+      ${manga.thumb?`<img src="${manga.thumb}" alt="${title}" loading="lazy">`:`<div class="no-cover">📖</div>`}
+      <div class="page-count">${total}p</div>
+      ${langs[0]?`<div class="lang-badge">${langs[0]}</div>`:''}
+      <button class="fav-star ${isFav?'active':''}" title="Favourite">${isFav?'★':'☆'}</button>
+      ${state.newItems.has(manga.name)?'<div class="new-badge">★ NEW</div>':''}
+      <button class="info-btn" title="Details">ⓘ</button>
+      <div class="select-checkbox">✓</div>
+      ${isSkeleton?'<div class="skeleton-lock">🔒</div>':''}
+    </div>
+    <div class="card-progress"><div class="card-progress-fill" style="width:${pct.toFixed(1)}%"></div></div>
+    <div class="manga-card-title" title="${title}">${title}</div>
+    <div class="manga-card-meta">
+      ${artists[0]?`<span class="meta-artist">✏ ${artists[0]}</span>`:''}
+      ${langs[0]?`<span class="meta-lang">${langs[0]}</span>`:''}
+    </div>`;
+
+  card.addEventListener('click', e=>{
+    if (deleteMode) { toggleCardSelect(card); return; }
+    if (e.target.closest('.fav-star')) { e.stopPropagation(); toggleFav(manga.name); renderLibrary(); return; }
+    if (e.target.closest('.info-btn')) { e.stopPropagation(); openDetail(idx); return; }
+    if (isSkeleton) { showToast('📂 Click "Load Files" to restore reading access'); return; }
+    openManga(idx);
+  });
+
+  if (deleteMode) {
+    card.classList.add('selectable');
+    if (selectedForDelete.has(manga.name)) card.classList.add('selected');
+  }
+  return card;
+}
+
+// ══════════════════════════════════════════════
+//  FILTERS
+// ══════════════════════════════════════════════
+function applyFilters() {
+  const q      =$('search-input').value.toLowerCase().trim();
+  const artist =$('artist-filter').value.toLowerCase();
+  const lang   =$('lang-filter').value.toLowerCase();
+  const favOnly=state.filterFavOnly;
+  let visible=0;
+  mangaGrid.querySelectorAll('.manga-card').forEach(card=>{
+    const show=
+      (!q     ||card.dataset.title.includes(q)||card.dataset.artists.includes(q)||card.dataset.langs.includes(q))&&
+      (!artist||card.dataset.artists.split(',').includes(artist))&&
+      (!lang  ||card.dataset.langs.split(',').includes(lang))&&
+      (!favOnly||card.dataset.fav==='1');
+    card.classList.toggle('hidden',!show);
+    if(show) visible++;
+  });
+  $('results-count').textContent=(q||artist||lang||favOnly)?`${visible} result${visible!==1?'s':''}`:'' ;
+  $('no-results').style.display=(visible===0&&state.library.length>0)?'block':'none';
+}
+
+$('search-input').addEventListener('input',applyFilters);
+$('artist-filter').addEventListener('change',applyFilters);
+$('lang-filter').addEventListener('change',applyFilters);
+$('filter-fav-only').addEventListener('click',()=>{
+  state.filterFavOnly=!state.filterFavOnly;
+  $('filter-fav-only').classList.toggle('active',state.filterFavOnly);
+  savePrefs(); applyFilters();
+});
+
+// ══════════════════════════════════════════════
+//  FAVOURITES
+// ══════════════════════════════════════════════
+function toggleFav(name) {
+  if (state.favs.has(name)) { state.favs.delete(name); idbDelete('favs',name); }
+  else { state.favs.add(name); idbPut('favs',{name}); }
+  updateFavReaderBtn();
+}
+
+function updateFavReaderBtn() {
+  const manga=state.library[state.currentManga]; if(!manga)return;
+  const on=state.favs.has(manga.name);
+  $('fav-reader-star').textContent=on?'★':'☆';
+  favReaderBtn.classList.toggle('fav-on',on);
+}
+
+favReaderBtn.addEventListener('click',()=>{
+  const m=state.library[state.currentManga]; if(!m)return;
+  toggleFav(m.name);
+  favReaderBtn.classList.add('fav-pop');
+  setTimeout(()=>favReaderBtn.classList.remove('fav-pop'),300);
+  const card=mangaGrid.querySelector(`[data-manga-name="${CSS.escape(m.name)}"]`);
+  if (card) {
+    const on=state.favs.has(m.name);
+    card.dataset.fav=on?'1':'0';
+    const star=card.querySelector('.fav-star');
+    if(star){star.textContent=on?'★':'☆';star.classList.toggle('active',on);}
+  }
+});
+
+// ══════════════════════════════════════════════
+//  DETAIL POPUP
+// ══════════════════════════════════════════════
+function openDetail(index) {
+  state.detailIndex=index;
+  const manga=state.library[index];
+  const {title,artists=[],langs=[],tags=[],raw}=manga.parsed;
+  const prog=state.progress[manga.name]||0;
+  const total=manga.pages.length||manga.pageCount||0;
+  const pct=total>1?(prog/(total-1))*100:0;
+
+  $('detail-cover-img').src=manga.thumb||'';
+  $('detail-cover-title').textContent=title;
+
+  const showRow=(rowId,valId,items,fn)=>{
+    $('detail-row-'+rowId).style.display=items.length?'flex':'none';
+    if(items.length) $(valId).innerHTML=items.map(fn).join('');
+  };
+  showRow('artist','detail-artist',artists,a=>`<span class="detail-tag artist-tag" onclick="filterBy('artist','${a.replace(/'/g,"\\'")}')")>✏ ${a}</span>`);
+  showRow('lang','detail-lang',langs,l=>`<span class="detail-tag lang-tag" onclick="filterBy('lang','${l.replace(/'/g,"\\'")}')")>🌐 ${l}</span>`);
+  showRow('tags','detail-tags',tags,t=>`<span class="detail-tag">${t}</span>`);
+
+  $('detail-pages').textContent=`${total} pages`;
+  $('detail-raw').textContent=raw||manga.name;
+  $('detail-prog-text').textContent=prog>0?`Page ${prog+1} / ${total}`:'Not started';
+  $('detail-prog-fill').style.width=pct.toFixed(1)+'%';
+  updateDetailFavBtn();
+  detailOverlay.classList.add('open');
+}
+
+function updateDetailFavBtn() {
+  const manga=state.library[state.detailIndex]; if(!manga)return;
+  const on=state.favs.has(manga.name);
+  const btn=$('detail-fav-btn');
+  btn.textContent=on?'★ FAV':'☆ FAV';
+  btn.style.color=on?'var(--gold)':'';
+  btn.style.borderColor=on?'var(--gold)':'';
+}
+
+function closeDetail(){detailOverlay.classList.remove('open');}
+$('detail-close-btn').addEventListener('click',closeDetail);
+detailOverlay.addEventListener('click',e=>{if(e.target===detailOverlay)closeDetail();});
+$('detail-read-btn').addEventListener('click',()=>{closeDetail();openManga(state.detailIndex);});
+$('detail-fav-btn').addEventListener('click',()=>{
+  const m=state.library[state.detailIndex];if(!m)return;
+  toggleFav(m.name);updateDetailFavBtn();renderLibrary();
+});
+window.filterBy=function(type,value){
+  closeDetail();
+  if(type==='artist') $('artist-filter').value=value;
+  else $('lang-filter').value=value;
+  applyFilters();
+};
+
+// ══════════════════════════════════════════════
+//  DELETE MODE
+// ══════════════════════════════════════════════
+let deleteMode=false;
+const selectedForDelete=new Set();
+
+function enterDeleteMode(){
+  deleteMode=true; selectedForDelete.clear();
+  $('delete-mode-btn').classList.add('delete-mode-btn-active');
+  $('delete-mode-btn').textContent='✕ Done';
+  $('delete-toolbar').classList.add('visible');
+  updateDeleteCount();
+  mangaGrid.querySelectorAll('.manga-card').forEach(c=>c.classList.add('selectable'));
+}
+function exitDeleteMode(){
+  deleteMode=false; selectedForDelete.clear();
+  $('delete-mode-btn').classList.remove('delete-mode-btn-active');
+  $('delete-mode-btn').textContent='🗑 Delete';
+  $('delete-toolbar').classList.remove('visible');
+  mangaGrid.querySelectorAll('.manga-card').forEach(c=>c.classList.remove('selectable','selected'));
+}
+function updateDeleteCount(){
+  $('delete-selected-count').textContent=selectedForDelete.size;
+  $('delete-confirm-btn').disabled=!selectedForDelete.size;
+}
+function toggleCardSelect(card){
+  const name=card.dataset.mangaName;
+  if(selectedForDelete.has(name)){selectedForDelete.delete(name);card.classList.remove('selected');}
+  else{selectedForDelete.add(name);card.classList.add('selected');}
+  updateDeleteCount();
+}
+
+$('delete-mode-btn').addEventListener('click',()=>{if(!state.library.length)return; deleteMode?exitDeleteMode():enterDeleteMode();});
+$('delete-cancel-btn').addEventListener('click',exitDeleteMode);
+$('delete-select-all-btn').addEventListener('click',()=>{
+  const cards=[...mangaGrid.querySelectorAll('.manga-card.selectable:not(.hidden)')];
+  const allSel=cards.every(c=>c.classList.contains('selected'));
+  cards.forEach(card=>{
+    const name=card.dataset.mangaName;
+    if(allSel){selectedForDelete.delete(name);card.classList.remove('selected');}
+    else{selectedForDelete.add(name);card.classList.add('selected');}
+  });
+  $('delete-select-all-btn').textContent=allSel?'Select All':'Deselect All';
+  updateDeleteCount();
+});
+$('delete-confirm-btn').addEventListener('click',()=>{
+  if(!selectedForDelete.size)return;
+  const count=selectedForDelete.size;
+  const toDelete=new Set(selectedForDelete);
+  state.library=state.library.filter(m=>{
+    if(!toDelete.has(m.name))return true;
+    if(m.thumb?.startsWith('blob:'))try{URL.revokeObjectURL(m.thumb);}catch(e){}
+    if(m.urls)m.urls.forEach(u=>{try{URL.revokeObjectURL(u);}catch(e){}});
+    idbDelete('meta',m.name); idbDelete('progress',m.name);
+    return false;
+  });
+  deleteMode=false; selectedForDelete.clear();
+  $('delete-mode-btn').classList.remove('delete-mode-btn-active');
+  $('delete-mode-btn').textContent='🗑 Delete';
+  $('delete-toolbar').classList.remove('visible');
+  renderLibrary();
+  showToast(`🗑 Deleted ${count} manga`);
+});
+
+// ══════════════════════════════════════════════
+//  READER — OPEN / CLOSE
+// ══════════════════════════════════════════════
+function openManga(index) {
+  const manga=state.library[index];
+  if (!manga||manga.skeleton){showToast('📂 Click "Load Files" to restore reading access');return;}
+  state.currentManga=index;
+  state.currentPage=Math.min(state.progress[manga.name]||0, manga.pages.length-1);
+
+  // Clear NEW badge
+  if (state.newItems.has(manga.name)) {
+    state.newItems.delete(manga.name); idbDelete('newItems',manga.name);
+    const badge=mangaGrid.querySelector(`[data-manga-name="${CSS.escape(manga.name)}"] .new-badge`);
+    if(badge)badge.remove();
+  }
+
+  // Fresh URLs
+  if(manga.urls)manga.urls.forEach(u=>{try{URL.revokeObjectURL(u);}catch(e){}});
+  manga.urls=manga.pages.map(f=>{try{return URL.createObjectURL(f);}catch(e){return '';}});
+
+  readerTitle.textContent=manga.parsed.title;
+  pageScrubber.max=manga.pages.length-1;
+  pageScrubber.value=state.currentPage;
+
+  thumbStrip.innerHTML='';
+  manga.urls.forEach((url,i)=>{
+    const img=document.createElement('img');
+    img.src=url; img.className='thumb-item'; img.dataset.idx=i;
+    img.addEventListener('click',()=>goToPage(i));
+    thumbStrip.appendChild(img);
+  });
+
+  updateFavReaderBtn();
+  libraryView.style.display='none';
+  readerView.style.display='flex';
+  applyModeStyles(state.mode);
+  renderPage();
+}
+
+function closeReader(){
+  saveProgress();
+  readerView.style.display='none';
+  libraryView.style.display='flex';
+  readerContent.innerHTML='';
+  renderLibrary();
+}
+$('back-btn').addEventListener('click',closeReader);
+
+function saveProgress(){
+  const manga=state.library[state.currentManga];if(!manga)return;
+  state.progress[manga.name]=state.currentPage;
+  idbPut('progress',{name:manga.name,page:state.currentPage});
+}
+
+// ══════════════════════════════════════════════
+//  MODE
+// ══════════════════════════════════════════════
+function applyModeStyles(mode){
+  state.mode=mode;
+  readerView.className=mode+'-mode';
+  readerView.style.display='flex';
+  $('mode-single').classList.toggle('active',mode==='single');
+  $('mode-double').classList.toggle('active',mode==='double');
+  $('mode-scroll').classList.toggle('active',mode==='scroll');
+  const sc=mode==='scroll';
+  scrollProg.style.display      =sc?'block':'none';
+  $('nav-overlay').style.display=sc?'none':'flex';
+  readerContent.style.overflowY ='auto';
+  readerContent.style.height    ='calc(100vh - 48px)';
+}
+function setMode(mode){applyModeStyles(mode);renderPage();savePrefs();}
+$('mode-single').addEventListener('click',()=>setMode('single'));
+$('mode-double').addEventListener('click',()=>setMode('double'));
+$('mode-scroll').addEventListener('click',()=>setMode('scroll'));
+
+// ══════════════════════════════════════════════
+//  RENDER PAGE
+// ══════════════════════════════════════════════
+function makeImg(url,file){
+  const img=document.createElement('img');
+  img.draggable=false; img.src=url||'';
+  img.onerror=()=>{if(file)try{img.onerror=null;img.src=URL.createObjectURL(file);}catch(e){}};
+  return img;
+}
+
+function renderPage(){
+  const manga=state.library[state.currentManga];if(!manga)return;
+  if(!manga.urls?.length)
+    manga.urls=manga.pages.map(f=>{try{return URL.createObjectURL(f);}catch(e){return '';}});
+  const {urls,pages}=manga;
+  const total=urls.length, p=state.currentPage;
+  readerContent.innerHTML='';
+
+  if(state.mode==='scroll'){
+    urls.forEach((url,i)=>{
+      const img=makeImg(url,pages[i]);
+      img.style.cssText='width:100%;max-width:800px;display:block;margin:0 auto;border-bottom:3px solid #111;';
+      readerContent.appendChild(img);
+    });
+    readerContent.scrollTop=0;
+    updateScrollPct();
+    return;
+  }
+
+  const wrap=document.createElement('div');
+  wrap.className='page-display';
+
+  if(state.mode==='double'){
+    (state.rtl?[p+1,p]:[p,p+1]).forEach(pi=>{
+      if(pi<0||pi>=total)return;
+      const img=makeImg(urls[pi],pages[pi]);
+      img.style.cssText='max-width:49%;max-height:calc(100vh - 88px);object-fit:contain;';
+      wrap.appendChild(img);
+    });
+  } else {
+    const img=makeImg(urls[p],pages[p]);
+    img.style.cssText=`max-width:${state.fitWidth?'100%':'min(100%,820px)'};max-height:calc(100vh - 88px);object-fit:contain;`;
+    img.addEventListener('click',e=>{
+      const r=wrap.getBoundingClientRect(),x=e.clientX-r.left;
+      if(x<r.width*0.35) state.rtl?nextPage():prevPage();
+      else if(x>r.width*0.65) state.rtl?prevPage():nextPage();
+    });
+    wrap.appendChild(img);
+  }
+
+  readerContent.appendChild(wrap);
+  pageIndicator.textContent=`${p+1}${state.mode==='double'&&p+2<=total?'–'+(p+2):''} / ${total}`;
+  pageScrubber.value=p;
+  prevBtn.disabled=p===0;
+  nextBtn.disabled=state.mode==='double'?p+2>=total:p+1>=total;
+  $('dir-display').textContent=state.rtl?'RTL':'LTR';
+  document.querySelectorAll('.thumb-item').forEach(el=>el.classList.toggle('active',+el.dataset.idx===p));
+  thumbStrip.querySelector('.thumb-item.active')?.scrollIntoView({inline:'center',behavior:'smooth'});
+  saveProgress();
+}
+
+// ══════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════
+function nextPage(){const s=state.mode==='double'?2:1;const m=state.library[state.currentManga];if(state.currentPage+s<m.urls.length){state.currentPage+=s;renderPage();}}
+function prevPage(){const s=state.mode==='double'?2:1;if(state.currentPage-s>=0){state.currentPage-=s;renderPage();}}
+function goToPage(i){const m=state.library[state.currentManga];if(i>=0&&i<m.urls.length){state.currentPage=i;if(state.mode!=='scroll')renderPage();else readerContent.querySelectorAll('img')[i]?.scrollIntoView({behavior:'smooth'});}}
+
+prevBtn.addEventListener('click',()=>state.rtl?nextPage():prevPage());
+nextBtn.addEventListener('click',()=>state.rtl?prevPage():nextPage());
+pageScrubber.addEventListener('input',()=>goToPage(+pageScrubber.value));
+$('dir-display').addEventListener('click',()=>{state.rtl=!state.rtl;renderPage();savePrefs();});
+readerContent.addEventListener('scroll',()=>{if(state.mode==='scroll')updateScrollPct();});
+function updateScrollPct(){const el=readerContent;scrollProg.style.width=(el.scrollHeight<=el.clientHeight?0:el.scrollTop/(el.scrollHeight-el.clientHeight)*100)+'%';}
+$('toggle-thumbs-btn').addEventListener('click',()=>{state.thumbsVisible=!state.thumbsVisible;thumbStrip.classList.toggle('visible',state.thumbsVisible);});
+
+// ══════════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(detailOverlay.classList.contains('open')){if(e.key==='Escape')closeDetail();return;}
+  if(readerView.style.display==='none')return;
+  if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;
+  switch(e.key){
+    case 'ArrowRight':e.preventDefault();state.rtl?prevPage():nextPage();break;
+    case 'ArrowLeft': e.preventDefault();state.rtl?nextPage():prevPage();break;
+    case 'ArrowDown': if(state.mode==='scroll'){e.preventDefault();readerContent.scrollBy(0,200);}break;
+    case 'ArrowUp':   if(state.mode==='scroll'){e.preventDefault();readerContent.scrollBy(0,-200);}break;
+    case 'Home':e.preventDefault();goToPage(0);break;
+    case 'End': e.preventDefault();goToPage(state.library[state.currentManga]?.urls.length-1);break;
+    case 'f':case 'F':toggleFullscreen();break;
+    case 'd':case 'D':state.rtl=!state.rtl;renderPage();savePrefs();break;
+    case 's':case 'S':{const m=state.library[state.currentManga];if(m){toggleFav(m.name);renderLibrary();}break;}
+    case 'Escape':settingsPanel.classList.remove('open');break;
+  }
+});
+
+// ══════════════════════════════════════════════
+//  TOUCH
+// ══════════════════════════════════════════════
+let tX=0;
+readerView.addEventListener('touchstart',e=>{tX=e.touches[0].clientX;},{passive:true});
+readerView.addEventListener('touchend',e=>{
+  if(state.mode==='scroll')return;
+  const dx=e.changedTouches[0].clientX-tX;
+  if(Math.abs(dx)>40) dx>0?(state.rtl?nextPage():prevPage()):(state.rtl?prevPage():nextPage());
+},{passive:true});
+
+// ══════════════════════════════════════════════
+//  FULLSCREEN
+// ══════════════════════════════════════════════
+function toggleFullscreen(){
+  if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+
+// ══════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════
+function savePrefs(){
+  idbPut('settings',{key:'prefs',value:{
+    mode:state.mode, rtl:state.rtl, fitWidth:state.fitWidth,
+    filterFavOnly:state.filterFavOnly, bgColor:$('bg-color').value,
+  }});
+}
+$('settings-btn').addEventListener('click',()=>settingsPanel.classList.toggle('open'));
+$('close-settings-btn').addEventListener('click',()=>settingsPanel.classList.remove('open'));
+$('bg-color').addEventListener('input',e=>{readerView.style.background=readerContent.style.background=e.target.value;savePrefs();});
+$('fit-width').addEventListener('change',e=>{state.fitWidth=e.target.checked;renderPage();savePrefs();});
+$('auto-double').addEventListener('change',e=>{if(e.target.checked&&window.innerWidth>1000)setMode('double');});
+
+// ══════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════
+let toastT;
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+</script>
+</body>
+</html>
