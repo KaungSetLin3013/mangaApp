@@ -31,6 +31,59 @@
     overflow-x: hidden;
   }
 
+
+  .icon-btn {
+    background: var(--panel-surface);
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .icon-btn:hover { background: var(--panel-border); border-color: var(--gray); }
+  .icon-btn.delete-mode-btn-active { background: var(--accent) !important; border-color: var(--accent) !important; }
+
+
+  .reader-title-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    gap: 2px;
+  }
+
+  #reader-artist-bar {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .reader-artist-chip {
+    font-size: 0.58rem;
+    padding: 1px 8px;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    background: transparent;
+    font-family: 'Space Mono', monospace;
+    transition: background 0.15s, color 0.15s;
+  }
+  .reader-artist-chip:hover {
+    background: var(--blue);
+    color: #fff;
+  }
+
   /* ── HEADER ── */
   .header {
     display: flex;
@@ -714,8 +767,9 @@
   <header class="header">
     <div class="logo">漫画 <span>READER</span></div>
     <div class="header-actions">
-      <button class="btn btn-primary" id="open-folder-btn">📂 Open Folder</button>
-      <button class="btn" id="delete-mode-btn">🗑 Delete</button>
+      <button class="icon-btn" id="open-folder-btn" title="Open Folder">📂</button>
+      <button class="icon-btn" id="random-btn" title="Random manga">🎲</button>
+      <button class="icon-btn" id="delete-mode-btn" title="Delete manga">🗑</button>
     </div>
   </header>
 
@@ -762,6 +816,8 @@
             <option value="">All Languages</option>
           </select>
           <button class="filter-chip" id="filter-fav-only">★ Fav only</button>
+          <button class="filter-chip" id="filter-unread-only">📖 Unread</button>
+          <button class="filter-chip" id="filter-new-only">✦ New</button>
           <span class="results-count" id="results-count"></span>
         </div>
 
@@ -776,7 +832,10 @@
 <div id="reader-view">
   <header class="reader-header">
     <button class="reader-btn" id="back-btn">← BACK</button>
-    <div class="reader-title" id="reader-title">—</div>
+    <div class="reader-title-wrap">
+      <div class="reader-title" id="reader-title">—</div>
+      <div id="reader-artist-bar"></div>
+    </div>
     <div class="reader-controls">
       <button class="reader-btn fav-reader-btn-styled" id="fav-reader-btn" title="Favourite (S)"><span id="fav-reader-star">☆</span><span id="fav-reader-label">FAV</span></button>
       <div class="dir-hint" id="dir-display" title="Direction (D)">RTL</div>
@@ -979,7 +1038,7 @@ const state = {
   library:[], currentManga:null, currentPage:0,
   mode:'single', rtl:true, fitWidth:false, thumbsVisible:false,
   favs:new Set(), progress:{}, newItems:new Set(),
-  detailIndex:null, filterFavOnly:false,
+  detailIndex:null, filterFavOnly:false, filterUnread:false, filterNew:false,
 };
 
 // ══════════════════════════════════════════════
@@ -1256,31 +1315,50 @@ function makeCard(manga, idx) {
 //  FILTERS
 // ══════════════════════════════════════════════
 function applyFilters() {
-  const q      =$('search-input').value.toLowerCase().trim();
-  const artist =$('artist-filter').value.toLowerCase();
-  const lang   =$('lang-filter').value.toLowerCase();
-  const favOnly=state.filterFavOnly;
-  let visible=0;
-  mangaGrid.querySelectorAll('.manga-card').forEach(card=>{
-    const show=
-      (!q     ||card.dataset.title.includes(q)||card.dataset.artists.includes(q)||card.dataset.langs.includes(q))&&
-      (!artist||card.dataset.artists.split(',').includes(artist))&&
-      (!lang  ||card.dataset.langs.split(',').includes(lang))&&
-      (!favOnly||card.dataset.fav==='1');
-    card.classList.toggle('hidden',!show);
-    if(show) visible++;
+  const q         = $('search-input').value.toLowerCase().trim();
+  const artist    = $('artist-filter').value.toLowerCase();
+  const lang      = $('lang-filter').value.toLowerCase();
+  const favOnly   = state.filterFavOnly;
+  const unreadOnly= state.filterUnread;
+  const newOnly   = state.filterNew;
+  let visible = 0;
+  mangaGrid.querySelectorAll('.manga-card').forEach(card => {
+    const name = card.dataset.mangaName;
+    const prog = state.progress[name] || 0;
+    const isUnread = prog === 0;
+    const isNew    = state.newItems.has(name);
+    const show =
+      (!q          || card.dataset.title.includes(q) || card.dataset.artists.includes(q) || card.dataset.langs.includes(q)) &&
+      (!artist     || card.dataset.artists.split(',').includes(artist)) &&
+      (!lang       || card.dataset.langs.split(',').includes(lang)) &&
+      (!favOnly    || card.dataset.fav === '1') &&
+      (!unreadOnly || isUnread) &&
+      (!newOnly    || isNew);
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
   });
-  $('results-count').textContent=(q||artist||lang||favOnly)?`${visible} result${visible!==1?'s':''}`:'' ;
-  $('no-results').style.display=(visible===0&&state.library.length>0)?'block':'none';
+  const active = q||artist||lang||favOnly||unreadOnly||newOnly;
+  $('results-count').textContent = active ? `${visible} result${visible!==1?'s':''}` : '';
+  $('no-results').style.display = (visible===0 && state.library.length>0) ? 'block' : 'none';
 }
 
-$('search-input').addEventListener('input',applyFilters);
-$('artist-filter').addEventListener('change',applyFilters);
-$('lang-filter').addEventListener('change',applyFilters);
-$('filter-fav-only').addEventListener('click',()=>{
-  state.filterFavOnly=!state.filterFavOnly;
-  $('filter-fav-only').classList.toggle('active',state.filterFavOnly);
+$('search-input').addEventListener('input', applyFilters);
+$('artist-filter').addEventListener('change', applyFilters);
+$('lang-filter').addEventListener('change', applyFilters);
+$('filter-fav-only').addEventListener('click', () => {
+  state.filterFavOnly = !state.filterFavOnly;
+  $('filter-fav-only').classList.toggle('active', state.filterFavOnly);
   savePrefs(); applyFilters();
+});
+$('filter-unread-only').addEventListener('click', () => {
+  state.filterUnread = !state.filterUnread;
+  $('filter-unread-only').classList.toggle('active', state.filterUnread);
+  applyFilters();
+});
+$('filter-new-only').addEventListener('click', () => {
+  state.filterNew = !state.filterNew;
+  $('filter-new-only').classList.toggle('active', state.filterNew);
+  applyFilters();
 });
 
 // ══════════════════════════════════════════════
@@ -1376,7 +1454,7 @@ const selectedForDelete=new Set();
 function enterDeleteMode(){
   deleteMode=true; selectedForDelete.clear();
   $('delete-mode-btn').classList.add('delete-mode-btn-active');
-  $('delete-mode-btn').textContent='✕ Done';
+  $('delete-mode-btn').textContent='✕';
   $('delete-toolbar').classList.add('visible');
   updateDeleteCount();
   mangaGrid.querySelectorAll('.manga-card').forEach(c=>c.classList.add('selectable'));
@@ -1384,7 +1462,7 @@ function enterDeleteMode(){
 function exitDeleteMode(){
   deleteMode=false; selectedForDelete.clear();
   $('delete-mode-btn').classList.remove('delete-mode-btn-active');
-  $('delete-mode-btn').textContent='🗑 Delete';
+  $('delete-mode-btn').textContent='🗑';
   $('delete-toolbar').classList.remove('visible');
   mangaGrid.querySelectorAll('.manga-card').forEach(c=>c.classList.remove('selectable','selected'));
 }
@@ -1425,7 +1503,7 @@ $('delete-confirm-btn').addEventListener('click',()=>{
   });
   deleteMode=false; selectedForDelete.clear();
   $('delete-mode-btn').classList.remove('delete-mode-btn-active');
-  $('delete-mode-btn').textContent='🗑 Delete';
+  $('delete-mode-btn').textContent='🗑';
   $('delete-toolbar').classList.remove('visible');
   renderLibrary();
   showToast(`🗑 Deleted ${count} manga`);
@@ -1452,6 +1530,22 @@ function openManga(index) {
   manga.urls=manga.pages.map(f=>{try{return URL.createObjectURL(f);}catch(e){return '';}});
 
   readerTitle.textContent=manga.parsed.title;
+
+  // Populate artist chips
+  const artistBar = $('reader-artist-bar');
+  artistBar.innerHTML = '';
+  (manga.parsed.artists||[]).forEach(artist => {
+    const chip = document.createElement('button');
+    chip.className = 'reader-artist-chip';
+    chip.textContent = '✏ ' + artist;
+    chip.title = `Show all manga by ${artist}`;
+    chip.addEventListener('click', () => {
+      closeReader();
+      $('artist-filter').value = artist;
+      applyFilters();
+    });
+    artistBar.appendChild(chip);
+  });
   pageScrubber.max=manga.pages.length-1;
   pageScrubber.value=state.currentPage;
 
@@ -1644,6 +1738,22 @@ $('close-settings-btn').addEventListener('click',()=>settingsPanel.classList.rem
 $('bg-color').addEventListener('input',e=>{readerView.style.background=readerContent.style.background=e.target.value;savePrefs();});
 $('fit-width').addEventListener('change',e=>{state.fitWidth=e.target.checked;renderPage();savePrefs();});
 $('auto-double').addEventListener('change',e=>{if(e.target.checked&&window.innerWidth>1000)setMode('double');});
+
+
+// ══════════════════════════════════════════════
+//  RANDOM MANGA
+// ══════════════════════════════════════════════
+$('random-btn').addEventListener('click', () => {
+  // Pick from currently visible (non-hidden, non-skeleton) cards
+  const visible = [...mangaGrid.querySelectorAll('.manga-card:not(.hidden)')]
+    .filter(c => {
+      const idx = +c.dataset.idx;
+      return !state.library[idx]?.skeleton;
+    });
+  if (!visible.length) { showToast('No manga to pick from'); return; }
+  const card = visible[Math.floor(Math.random() * visible.length)];
+  openManga(+card.dataset.idx);
+});
 
 // ══════════════════════════════════════════════
 //  TOAST
