@@ -1471,11 +1471,19 @@ function openManga(index) {
 }
 
 function closeReader(){
+  const mangaName = state.library[state.currentManga]?.name;
   saveProgress();
   readerView.style.display='none';
   libraryView.style.display='flex';
   readerContent.innerHTML='';
   renderLibrary();
+  // Scroll back to the card we just read
+  if (mangaName) {
+    requestAnimationFrame(() => {
+      const card = mangaGrid.querySelector(`[data-manga-name="${CSS.escape(mangaName)}"]`);
+      if (card) card.scrollIntoView({ behavior: 'instant', block: 'center' });
+    });
+  }
 }
 $('back-btn').addEventListener('click',closeReader);
 
