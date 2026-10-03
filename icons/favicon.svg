@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#0A0A0F"/>
+<path d="M132 80H352V432H132a20 20 0 0 1-20-20V100a20 20 0 0 1 20-20Z" fill="#E8E4DC"/>
+<path d="M340 80H380a20 20 0 0 1 20 20V412a20 20 0 0 1-20 20H340Z" fill="#C0392B"/>
+<rect x="146" y="104" width="180" height="120" fill="#0A0A0F"/>
+<rect x="146" y="238" width="84" height="170" fill="#0A0A0F"/>
+<rect x="244" y="238" width="82" height="80" fill="#0A0A0F"/>
+<rect x="244" y="332" width="82" height="76" fill="#C0392B"/>
+<polygon points="236.0,118.0 247.8,147.8 279.7,149.8 255.0,170.2 263.0,201.2 236.0,184.0 209.0,201.2 217.0,170.2 192.3,149.8 224.2,147.8" fill="#F0A500"/>
+</svg>
