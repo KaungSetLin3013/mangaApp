@@ -7,28 +7,35 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png?v=2"/>
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=2"/>
 <link rel="manifest" href="icons/site.webmanifest"/>
-<meta name="theme-color" content="#0A0A0F"/>
-<meta name="msapplication-TileColor" content="#0A0A0F"/>
+<meta name="theme-color" content="#111314"/>
+<meta name="msapplication-TileColor" content="#111314"/>
 <meta name="msapplication-config" content="icons/browserconfig.xml"/>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>漫画 Reader</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&family=Noto+Serif+JP:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
 
-  :root {
-    --ink: #0a0a0f;
-    --accent: #c0392b;
-    --accent2: #e74c3c;
-    --gold: #f0a500;
-    --blue: #2980b9;
-    --green: #27ae60;
-    --gray: #8a8a9a;
-    --panel-bg: #1a1a24;
-    --panel-surface: #22222e;
-    --panel-border: #333345;
-    --text: #e8e4dc;
+  :root{
+    --ink:#111314;           /* Black, No.190 */
+    --paper:#ebd3a2;         /* Ivory Buff, No.190 */
+    --accent:#d96629;        /* English Red, No.190 */
+    --gold:#e2b540;          /* Yellow Ocher, No.325 */
+    --artist:#97acc8;        /* Salvia Blue, No.321 */
+    --lang:#62c6bf;          /* Venice Green, No.189 */
+    --blue:#1c4286;          /* Deep Lyons Blue, No.344 */
+    --on-accent:var(--ink);
+    --text:var(--paper);
+    --muted:color-mix(in srgb,var(--paper) 70%,var(--ink));
+    --gray:var(--muted);
+    --panel-bg:color-mix(in srgb,var(--paper) 6%,var(--ink));
+    --panel-surface:color-mix(in srgb,var(--paper) 11%,var(--ink));
+    --panel-border:color-mix(in srgb,var(--paper) 22%,var(--ink));
+    --accent2:color-mix(in srgb,var(--accent) 82%,var(--paper));
+    --hdr:65px; color-scheme:dark;
   }
+  [data-theme=slate]{--ink:#112f2c;--paper:#fbe6a0;--accent:#f48067;--artist:#bce4e5;--lang:#62c6bf;--blue:#1c4286}
+  [data-theme=olive]{--ink:#253122;--paper:#f5ecc2;--accent:#97acc8;--artist:#b59392;--lang:#b4cdc2;--blue:#40456a}
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -90,7 +97,7 @@
   }
   .reader-artist-chip:hover {
     background: var(--blue);
-    color: #fff;
+    color: var(--paper);
   }
 
   /* ── HEADER ── */
@@ -137,8 +144,8 @@
   }
 
   .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); color: var(--paper); }
 
   /* ── SEARCH + FILTER BAR ── */
   .filter-bar {
@@ -204,7 +211,7 @@
     white-space: nowrap;
   }
 
-  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: var(--paper); }
 
   .results-count {
     font-size: 0.62rem;
@@ -226,7 +233,7 @@
 
   .section-title {
     font-size: 0.63rem;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 3px;
     color: var(--gray);
     margin-bottom: 16px;
@@ -265,8 +272,8 @@
   .manga-thumb .page-count {
     position: absolute;
     bottom: 5px; right: 5px;
-    background: rgba(0,0,0,0.75);
-    color: #fff;
+    background: rgb(17 19 20 / 0.75);
+    color: var(--paper);
     font-size: 0.58rem;
     padding: 2px 5px;
   }
@@ -275,19 +282,19 @@
   .lang-badge {
     position: absolute;
     top: 5px; right: 5px;
-    background: rgba(41,128,185,0.9);
-    color: #fff;
+    background: var(--blue);
+    color: var(--paper);
     font-size: 0.55rem;
     padding: 2px 5px;
     letter-spacing: 0.5px;
-    text-transform: uppercase;
+    text-transform: none;
   }
 
   .fav-star {
     position: absolute;
     top: 5px; left: 5px;
     width: 24px; height: 24px;
-    background: rgba(0,0,0,0.65);
+    background: rgb(17 19 20 / 0.65);
     border: none;
     cursor: pointer;
     display: flex;
@@ -296,7 +303,7 @@
     font-size: 0.9rem;
     transition: transform 0.15s;
     z-index: 5;
-    color: #666;
+    color: var(--muted);
     border-radius: 2px;
   }
 
@@ -308,20 +315,20 @@
     position: absolute;
     bottom: 5px; left: 5px;
     width: 22px; height: 22px;
-    background: rgba(0,0,0,0.65);
+    background: rgb(17 19 20 / 0.65);
     border: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.72rem;
-    color: #aaa;
+    color: var(--text);
     border-radius: 2px;
     z-index: 5;
     transition: color 0.15s;
   }
 
-  .info-btn:hover { color: #fff; }
+  .info-btn:hover { color: var(--paper); }
 
   .card-progress { height: 3px; background: var(--panel-border); width: 100%; }
   .card-progress-fill { height: 100%; background: var(--accent); transition: width 0.3s; }
@@ -346,7 +353,7 @@
   }
 
   .meta-artist {
-    color: #7fb3d3;
+    color: var(--artist);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -354,9 +361,9 @@
   }
 
   .meta-lang {
-    color: #82c9a0;
+    color: var(--lang);
     flex-shrink: 0;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 0.5px;
   }
 
@@ -364,7 +371,7 @@
   #detail-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgb(17 19 20 / 0.7);
     z-index: 800;
     display: none;
     align-items: center;
@@ -402,10 +409,10 @@
     position: absolute;
     bottom: 0; left: 0; right: 0;
     padding: 20px 16px 12px;
-    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+    background: linear-gradient(transparent, rgb(17 19 20 / 0.9));
     font-family: 'Noto Serif JP', serif;
     font-size: 1rem;
-    color: #fff;
+    color: var(--paper);
     line-height: 1.4;
   }
 
@@ -422,7 +429,7 @@
   .detail-label {
     color: var(--gray);
     font-size: 0.62rem;
-    text-transform: uppercase;
+    text-transform: none;
     letter-spacing: 1px;
     min-width: 60px;
     padding-top: 1px;
@@ -442,8 +449,8 @@
   }
 
   .detail-tag:hover { border-color: var(--accent); color: var(--accent); }
-  .detail-tag.lang-tag { border-color: rgba(41,128,185,0.5); color: #7fb3d3; }
-  .detail-tag.artist-tag { border-color: rgba(130,201,160,0.5); color: #82c9a0; }
+  .detail-tag.lang-tag { border-color: var(--lang); color: var(--artist); }
+  .detail-tag.artist-tag { border-color: var(--artist); color: var(--lang); }
 
   .detail-divider { height: 1px; background: var(--panel-border); margin: 12px 0; }
 
@@ -467,9 +474,9 @@
     position: absolute;
     top: 10px; right: 10px;
     width: 28px; height: 28px;
-    background: rgba(0,0,0,0.6);
-    border: 1px solid #444;
-    color: #ccc;
+    background: rgb(17 19 20 / 0.6);
+    border: 1px solid var(--panel-border);
+    color: var(--text);
     cursor: pointer;
     font-size: 0.85rem;
     display: flex;
@@ -479,7 +486,7 @@
     transition: all 0.15s;
   }
 
-  .detail-close:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .detail-close:hover { background: var(--accent); border-color: var(--accent); color: var(--paper); }
 
   /* ── EMPTY / INSTRUCTIONS ── */
   .empty-state {
@@ -499,7 +506,7 @@
     text-align: left;
   }
 
-  .instructions h3 { font-size: 0.68rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .instructions h3 { font-size: 0.68rem; color: var(--accent); letter-spacing: 2px; text-transform: none; margin-bottom: 10px; }
   .instructions ol { font-size: 0.7rem; color: var(--text); line-height: 2.1; padding-left: 16px; opacity: 0.85; }
   .instructions code { background: var(--ink); padding: 1px 5px; color: var(--accent2); font-size: 0.66rem; }
 
@@ -527,23 +534,23 @@
   #toast.show { transform: translateX(-50%) translateY(0); }
 
   /* ── READER ── */
-  #reader-view { display: none; flex-direction: column; min-height: 100vh; background: #000; }
+  #reader-view { display: none; flex-direction: column; min-height: 100vh; background: var(--ink); }
 
   .reader-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 8px 16px;
-    background: rgba(0,0,0,0.92);
-    border-bottom: 1px solid #222;
+    background: rgb(17 19 20 / 0.92);
+    border-bottom: 1px solid var(--panel-border);
     position: sticky; top: 0; z-index: 200; gap: 8px;
   }
 
-  .reader-title { font-size: 0.76rem; font-family: 'Noto Serif JP', serif; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #bbb; text-align: center; }
+  .reader-title { font-size: 0.76rem; font-family: 'Noto Serif JP', serif; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); text-align: center; }
 
   .reader-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
-  .mode-toggle { display: flex; border: 1px solid #333; overflow: hidden; }
-  .mode-toggle button { font-family: 'Space Mono', monospace; font-size: 0.6rem; padding: 5px 8px; background: transparent; border: none; color: #777; cursor: pointer; transition: all 0.15s; }
-  .mode-toggle button.active { background: var(--accent); color: #fff; }
+  .mode-toggle { display: flex; border: 1px solid var(--panel-border); overflow: hidden; }
+  .mode-toggle button { font-family: 'Space Mono', monospace; font-size: 0.6rem; padding: 5px 8px; background: transparent; border: none; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .mode-toggle button.active { background: var(--accent); color: var(--paper); }
 
 
   .fav-reader-btn-styled {
@@ -564,7 +571,7 @@
   .fav-reader-btn-styled.fav-on {
     color: var(--gold) !important;
     border-color: var(--gold) !important;
-    background: rgba(240,165,0,0.1) !important;
+    background: color-mix(in srgb,var(--gold) 12%,transparent) !important;
   }
 
   .fav-reader-btn-styled.fav-pop #fav-reader-star {
@@ -579,11 +586,11 @@
 
   .fav-pop #fav-reader-star { animation: fav-burst 0.3s ease-out; }
 
-  .reader-btn { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 5px 9px; border: 1px solid #333; background: transparent; color: #888; cursor: pointer; transition: all 0.15s; }
+  .reader-btn { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 5px 9px; border: 1px solid var(--panel-border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
   .reader-btn:hover { border-color: var(--accent); color: var(--accent); }
   .reader-btn.fav-on { color: var(--gold); border-color: var(--gold); }
 
-  .dir-hint { font-size: 0.58rem; color: var(--gray); background: #1a1a1a; padding: 3px 7px; border: 1px solid #333; cursor: pointer; user-select: none; }
+  .dir-hint { font-size: 0.58rem; color: var(--gray); background: var(--panel-surface); padding: 3px 7px; border: 1px solid var(--panel-border); cursor: pointer; user-select: none; }
 
   .reader-content { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
 
@@ -591,7 +598,7 @@
 
   .page-display img {
     max-width: 100%;
-    max-height: calc(100vh - 88px);
+    max-height: calc(100dvh - var(--hdr));
     object-fit: contain;
     user-select: none;
     -webkit-user-drag: none;
@@ -603,7 +610,7 @@
   .nav-overlay {
     position: fixed; bottom: 0; left: 0; right: 0;
     padding: 10px 16px;
-    background: linear-gradient(transparent, rgba(0,0,0,0.88));
+    background: linear-gradient(transparent, rgb(17 19 20 / 0.88));
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     z-index: 150; opacity: 0; transition: opacity 0.25s;
   }
@@ -612,42 +619,42 @@
   #reader-view.touch-show .nav-overlay { opacity: 1; }
   .scroll-mode .nav-overlay { display: none; }
 
-  .nav-btn { font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 9px 16px; background: rgba(192,57,43,0.85); border: none; color: #fff; cursor: pointer; transition: background 0.2s; min-width: 70px; }
+  .nav-btn { font-family: 'Space Mono', monospace; font-size: 0.7rem; padding: 9px 16px; background: color-mix(in srgb,var(--accent) 85%,transparent); border: none; color: var(--paper); cursor: pointer; transition: background 0.2s; min-width: 70px; }
   .nav-btn:hover { background: var(--accent2); }
-  .nav-btn:disabled { background: #2a2a2a; color: #555; cursor: default; }
+  .nav-btn:disabled { background: var(--panel-surface); color: var(--muted); cursor: default; }
 
-  .page-indicator { font-size: 0.7rem; color: #aaa; flex: 1; text-align: center; }
+  .page-indicator { font-size: 0.7rem; color: var(--text); flex: 1; text-align: center; }
 
   .scroll-progress { position: fixed; bottom: 0; left: 0; height: 3px; background: var(--accent); z-index: 300; transition: width 0.1s; display: none; }
 
   .thumb-strip {
     position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%);
     display: flex; gap: 3px;
-    background: rgba(0,0,0,0.88);
-    padding: 6px; border: 1px solid #333;
+    background: rgb(17 19 20 / 0.88);
+    padding: 6px; border: 1px solid var(--panel-border);
     max-width: 90vw; overflow-x: auto;
     z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.25s; border-radius: 3px;
   }
 
   .thumb-strip::-webkit-scrollbar { height: 3px; }
-  .thumb-strip::-webkit-scrollbar-thumb { background: #444; }
+  .thumb-strip::-webkit-scrollbar-thumb { background: var(--panel-border); }
   .thumb-strip.visible { opacity: 1; pointer-events: all; }
   .thumb-item { width: 42px; height: 63px; object-fit: cover; cursor: pointer; opacity: 0.45; transition: opacity 0.2s; flex-shrink: 0; }
   .thumb-item.active { opacity: 1; outline: 2px solid var(--accent); }
 
   .keyboard-hint {
     position: fixed; top: 55px; right: 12px;
-    background: rgba(0,0,0,0.88); border: 1px solid #333;
-    padding: 10px 13px; font-size: 0.6rem; color: #777; line-height: 2; z-index: 300;
+    background: rgb(17 19 20 / 0.88); border: 1px solid var(--panel-border);
+    padding: 10px 13px; font-size: 0.6rem; color: var(--muted); line-height: 2; z-index: 300;
     opacity: 0; transition: opacity 0.25s;
   }
 
   .keyboard-hint.visible { opacity: 1; }
-  .keyboard-hint kbd { background: #222; border: 1px solid #444; padding: 1px 5px; color: #ccc; font-family: 'Space Mono', monospace; font-size: 0.58rem; }
+  .keyboard-hint kbd { background: var(--panel-border); border: 1px solid var(--panel-border); padding: 1px 5px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 0.58rem; }
 
   #zoom-indicator {
     position: fixed; top: 55px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.8); color: #fff; padding: 4px 12px; font-size: 0.66rem;
+    background: rgb(17 19 20 / 0.8); color: var(--paper); padding: 4px 12px; font-size: 0.66rem;
     opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 400;
   }
 
@@ -661,7 +668,7 @@
 
   #settings-panel.open { transform: translateX(0); }
 
-  .settings-title { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--panel-border); }
+  .settings-title { font-size: 0.63rem; text-transform: none; letter-spacing: 2px; color: var(--gray); margin-bottom: 12px; padding-bottom: 7px; border-bottom: 1px solid var(--panel-border); }
   .setting-row { margin-bottom: 12px; }
   .setting-label { font-size: 0.66rem; color: var(--gray); margin-bottom: 5px; display: block; }
   .setting-input { width: 100%; background: var(--panel-surface); border: 1px solid var(--panel-border); color: var(--text); padding: 7px; font-family: 'Space Mono', monospace; font-size: 0.7rem; }
@@ -689,11 +696,11 @@
     position: absolute;
     bottom: 28px; left: 5px;
     background: var(--green);
-    color: #fff;
+    color: var(--paper);
     font-size: 0.55rem;
     padding: 2px 6px;
     letter-spacing: 1px;
-    text-transform: uppercase;
+    text-transform: none;
     font-weight: bold;
     z-index: 7;
     pointer-events: none;
@@ -717,7 +724,7 @@
   }
 
   /* ── DELETE MODE ── */
-  .delete-mode-btn-active { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+  .delete-mode-btn-active { background: var(--accent) !important; border-color: var(--accent) !important; color: var(--paper) !important; }
 
   .manga-card.selectable { cursor: pointer; }
   .manga-card.selectable .manga-thumb::after {
@@ -729,20 +736,20 @@
     z-index: 4;
   }
   .manga-card.selectable:hover .manga-thumb::after { border-color: var(--accent); }
-  .manga-card.selected .manga-thumb::after { border-color: var(--accent); background: rgba(192,57,43,0.18); }
+  .manga-card.selected .manga-thumb::after { border-color: var(--accent); background: color-mix(in srgb,var(--accent) 18%,transparent); }
 
   .select-checkbox {
     position: absolute;
     top: 5px; right: 5px;
     width: 20px; height: 20px;
-    border: 2px solid #fff;
-    background: rgba(0,0,0,0.55);
+    border: 2px solid var(--paper);
+    background: rgb(17 19 20 / 0.55);
     border-radius: 3px;
     display: none;
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
-    color: #fff;
+    color: var(--paper);
     z-index: 6;
     pointer-events: none;
   }
@@ -767,18 +774,117 @@
   .delete-count { font-size: 0.72rem; color: var(--text); flex: 1; }
   .delete-count span { color: var(--accent); font-weight: bold; }
 
+
+  /* ── Wada palette + UX playbook + Jakob's Law ── */
+  body{font-family:'Noto Sans JP',system-ui,sans-serif;font-size:16px;line-height:1.5}
+  :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+  .btn,.icon-btn,.filter-chip,.filter-select,#search-input,.reader-btn,.nav-btn,.mode-toggle button,.reader-artist-chip,.setting-input,.dir-hint{font-family:inherit}
+  .i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+  .lbl{white-space:nowrap}
+  .logo{text-decoration:none;font-size:1.5rem}
+  .logo span{font-family:'Noto Sans JP',sans-serif;font-size:15px}
+  .header{min-height:var(--hdr);padding:8px 24px;justify-content:flex-start;gap:16px}
+  .header .search-wrap{flex:1;max-width:520px;min-width:0}
+  .header-actions{margin-left:auto;gap:8px}
+  .search-icon{left:16px;font-size:inherit}
+  #search-input{padding:0 16px 0 48px;min-height:48px;font-size:16px;border-radius:24px}
+  .btn,.nav-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;border-radius:24px;font-size:17px;font-weight:600}
+  .btn,.icon-btn,.reader-btn,.nav-btn,.filter-chip{transition:background-color .1s,border-color .1s,color .1s,transform .1s}
+  .btn-primary,.icon-btn.btn-primary,.nav-btn,.filter-chip.active,.mode-toggle button.active{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  .btn-primary:hover,.icon-btn.btn-primary:hover,.nav-btn:hover{background:var(--accent2);border-color:var(--accent2);color:var(--on-accent)}
+  .btn:active,.nav-btn:active,.icon-btn:active,.reader-btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .nav-btn:disabled{background:var(--panel-surface);color:var(--muted)}
+  .icon-btn{width:auto;min-width:48px;height:48px;padding:0 16px;gap:8px;border-radius:24px;font-size:15px;font-weight:600}
+  .filter-bar{gap:8px;margin-bottom:24px}
+  .filter-chip{min-height:48px;padding:0 20px;border-radius:24px;font-size:15px;font-weight:600;color:var(--text)}
+  .filter-select{min-height:48px;padding:0 16px;border-radius:24px;font-size:15px}
+  .results-count{font-size:14px}
+  .library-body{padding:24px}
+  .section-title{font:700 28px/1.2 'Noto Serif JP',serif;letter-spacing:0;color:var(--text);margin-bottom:16px}
+  .section-title::after{display:none}
+  .manga-grid{gap:24px 16px}
+  .manga-card:focus-visible{outline-offset:6px;border-radius:4px}
+  .manga-thumb{border-radius:8px}
+  .manga-card-title{font-size:15px;font-weight:600;margin-top:8px}
+  .manga-card-meta{font-size:13px}
+  .meta-artist{color:var(--artist)} .meta-lang{color:var(--lang);letter-spacing:0}
+  .page-count,.lang-badge,.new-badge{font-size:12px;letter-spacing:0;border-radius:4px}
+  .page-count{bottom:6px;right:6px} .lang-badge{top:6px;right:6px;background:var(--blue);color:var(--paper)}
+  .new-badge{background:var(--lang);color:var(--ink);bottom:52px;left:6px}
+  .fav-star{top:6px;left:6px;width:40px;height:40px;font-size:1.3rem;color:var(--text)}
+  .fav-star.active{color:var(--gold)}
+  .info-btn{bottom:6px;left:6px;width:40px;height:40px;font-size:1.2rem;color:var(--text)}
+  .skeleton-lock{display:flex;bottom:6px;right:52px;color:var(--text)}
+  .skeleton-lock .i{width:20px;height:20px}
+  .no-cover .i{width:48px;height:48px;color:var(--muted)}
+  .empty-icon{width:64px;height:64px;opacity:1;color:var(--accent);stroke-width:1.5}
+  .empty-title{font-size:28px;color:var(--text)}
+  .empty-desc{font-size:16px;opacity:1;max-width:420px;line-height:1.7}
+  .instructions{border-radius:12px;padding:24px}
+  .instructions h3{font-size:17px;letter-spacing:0;margin-bottom:16px}
+  .instructions ol{font-size:15px;line-height:1.9;opacity:1}
+  .instructions code{font-size:13px;color:var(--accent2)}
+  .no-results{font-size:16px;opacity:1}
+  #delete-toolbar{border-radius:12px;gap:8px;padding:16px}
+  .delete-count{font-size:16px}
+  #detail-overlay{border:0;max-width:none;max-height:none;width:100%;height:100%;margin:0;padding:24px;background:transparent;color:inherit}
+  #detail-overlay[open]{display:flex}
+  #detail-overlay::backdrop{background:rgb(17 19 20 / .7)}
+  body:has(dialog[open]){overflow:hidden}
+  #detail-popup{border-radius:16px;background:var(--panel-surface)}
+  .detail-cover-title{font-size:1.15rem}
+  .detail-row{font-size:15px;gap:16px}
+  .detail-label{font-size:14px;letter-spacing:0;min-width:80px}
+  .detail-tag{font-size:14px;padding:6px 14px;border-radius:16px;font-family:inherit;background:transparent}
+  .detail-tag.lang-tag{border-color:color-mix(in srgb,var(--lang) 55%,transparent);color:var(--lang)}
+  .detail-tag.artist-tag{border-color:color-mix(in srgb,var(--artist) 55%,transparent);color:var(--artist)}
+  .detail-close{width:48px;height:48px;border-radius:24px;top:8px;right:8px}
+  .detail-actions{padding:16px 24px 24px;gap:8px;flex-wrap:wrap}
+  .detail-body{padding:24px}
+  #toast{font-size:15px;border-radius:12px}
+  .reader-header{min-height:var(--hdr);padding:8px 16px}
+  .reader-btn,.dir-hint{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 16px;font-size:15px;font-weight:600;border-radius:24px;color:var(--text)}
+  .reader-btn.fav-reader-btn-styled{padding:0 16px!important;font-size:15px!important}
+  .mode-toggle{border-radius:24px}
+  .mode-toggle button{min-height:46px;min-width:48px;padding:0 16px;font-size:15px;font-weight:600;color:var(--text)}
+  .reader-title{font-size:17px;font-weight:600;color:var(--text)}
+  .reader-artist-chip{font-size:13px;padding:2px 12px;border-radius:12px;border-color:var(--artist);color:var(--artist)}
+  .reader-artist-chip:hover{background:var(--artist);color:var(--on-accent)}
+  .page-indicator{font:15px 'Space Mono',monospace;color:var(--text)}
+  .keyboard-hint{top:var(--hdr);font-size:13px;color:var(--text);border-radius:8px}
+  #settings-panel{top:var(--hdr)}
+  .settings-title{font-size:17px;letter-spacing:0;color:var(--text)}
+  .setting-label{font-size:14px;line-height:1.4}
+  .checkbox-row{min-height:48px}.checkbox-row label{font-size:15px}.checkbox-row input{width:20px;height:20px}
+  .theme-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:8px 12px;margin-top:8px;background:var(--panel-surface);border:1px solid var(--panel-border);color:var(--text);border-radius:12px;cursor:pointer;font:15px/1.3 inherit;text-align:left}
+  .theme-opt small{color:var(--muted);font-size:13px}
+  .theme-opt[aria-checked=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .sw{display:flex;border-radius:6px;overflow:hidden;flex-shrink:0}.sw i{width:14px;height:32px}
+  @media (hover:none){.nav-overlay{opacity:1}}
+  @media (max-width:700px){
+    .lbl{display:none}
+    .header{padding:8px 12px;flex-wrap:wrap}
+    .header .search-wrap{order:3;flex-basis:100%;max-width:none}
+    .library-body{padding:16px 12px}
+    .reader-btn,.dir-hint{padding:0 12px}
+  }
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true"><symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol><symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol><symbol id="i-gear" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol><symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></symbol><symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol></svg>
 
 <!-- ══════════════════ LIBRARY ══════════════════ -->
 <div id="library-view">
   <header class="header">
-    <div class="logo">漫画 <span>READER</span></div>
+    <a class="logo" href="./" aria-label="Manga Reader, home">漫画 <span>Reader</span></a>
+    <div class="search-wrap"><svg class="i search-icon" aria-hidden="true"><use href="#i-search"/></svg><input type="search" id="search-input" aria-label="Search manga" autocomplete="off" placeholder="Search title, artist, language…"></div>
     <div class="header-actions">
-      <button class="icon-btn" id="open-folder-btn" title="Open Folder">📂</button>
-      <button class="icon-btn" id="random-btn" title="Random manga">🎲</button>
-      <button class="icon-btn" id="delete-mode-btn" title="Delete manga">🗑</button>
+      <button class="icon-btn btn-primary" id="open-folder-btn" aria-label="Open folder"><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg><span class="lbl">Open folder</span></button>
+      <button class="icon-btn" id="random-btn" aria-label="Random manga"><svg class="i" aria-hidden="true"><use href="#i-shuffle"/></svg><span class="lbl">Random</span></button>
+      <button class="icon-btn" id="delete-mode-btn" aria-label="Delete manga"><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg><span class="lbl">Delete</span></button>
+      <button class="icon-btn" id="lib-settings-btn" aria-label="Settings"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg><span class="lbl">Settings</span></button>
     </div>
   </header>
 
@@ -786,23 +892,23 @@
     <!-- DELETE TOOLBAR -->
     <div id="delete-toolbar">
       <div class="delete-count"><span id="delete-selected-count">0</span> selected</div>
-      <button class="btn" id="delete-select-all-btn">Select All</button>
-      <button class="btn btn-primary" id="delete-confirm-btn" style="background:var(--accent)">🗑 Delete Selected</button>
+      <button class="btn" id="delete-select-all-btn">Select all</button>
+      <button class="btn btn-primary" id="delete-confirm-btn">Delete selected</button>
       <button class="btn" id="delete-cancel-btn">Cancel</button>
     </div>
 
     <div class="empty-state" id="empty-state">
-        <div class="empty-icon">📚</div>
+        <svg class="i empty-icon" aria-hidden="true"><use href="#i-book"/></svg>
         <div class="empty-title">Your library is empty</div>
         <div class="empty-desc">Open your root manga folder — each subfolder becomes one series.</div>
         <div class="instructions">
           <h3>How to use</h3>
           <ol>
-            <li>Click <strong>"Open Folder"</strong> → select your manga root folder</li>
+            <li>Click <strong>"Open folder"</strong> → select your manga root folder</li>
             <li>Folder names are parsed automatically:<br>
               <code>Title (ignore)[Artist][Language]</code></li>
             <li>Bracket groups: <code>()</code> ignored · <code>[Artist]</code> · <code>[Language]</code></li>
-            <li>Search by title, artist, or language in the filter bar</li>
+            <li>Search by title, artist, or language in the search box</li>
             <li>Click ⓘ on any card to see full details</li>
             <li>★ Star manga to add to Favourites · progress auto-saved</li>
           </ol>
@@ -814,60 +920,55 @@
 
         <!-- Filter bar -->
         <div class="filter-bar">
-          <div class="search-wrap">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-input" placeholder="Search title, artist, language…">
-          </div>
           <select class="filter-select" id="artist-filter">
             <option value="">All Artists</option>
           </select>
           <select class="filter-select" id="lang-filter">
             <option value="">All Languages</option>
           </select>
-          <button class="filter-chip" id="filter-fav-only">★ Fav only</button>
-          <button class="filter-chip" id="filter-unread-only">📖 Unread</button>
-          <button class="filter-chip" id="filter-new-only">✦ New</button>
+          <button class="filter-chip" id="filter-fav-only">★ Favourites</button>
+          <button class="filter-chip" id="filter-unread-only">Unread</button>
+          <button class="filter-chip" id="filter-new-only">New</button>
           <span class="results-count" id="results-count"></span>
         </div>
 
         <div class="no-results" id="no-results">No manga match your search.</div>
         <div class="manga-grid" id="manga-grid"></div>
       </div>
-    </div>
   </div>
 </div>
 
 <!-- ══════════════════ READER ══════════════════ -->
 <div id="reader-view">
   <header class="reader-header">
-    <button class="reader-btn" id="back-btn">← BACK</button>
+    <button class="reader-btn" id="back-btn" aria-label="Back to library"><svg class="i" aria-hidden="true"><use href="#i-back"/></svg><span class="lbl">Back</span></button>
     <div class="reader-title-wrap">
       <div class="reader-title" id="reader-title">—</div>
       <div id="reader-artist-bar"></div>
     </div>
     <div class="reader-controls">
-      <button class="reader-btn fav-reader-btn-styled" id="fav-reader-btn" title="Favourite (S)"><span id="fav-reader-star">☆</span><span id="fav-reader-label">FAV</span></button>
-      <div class="dir-hint" id="dir-display" title="Direction (D)">RTL</div>
+      <button class="reader-btn fav-reader-btn-styled" id="fav-reader-btn" title="Favourite (S)"><span id="fav-reader-star">☆</span><span id="fav-reader-label" class="lbl">Favourite</span></button>
+      <div class="dir-hint" id="dir-display" role="button" tabindex="0" title="Reading direction (D)">Right to left</div>
       <div class="mode-toggle">
-        <button id="mode-single" class="active">1P</button>
-        <button id="mode-double">2P</button>
-        <button id="mode-scroll">↕</button>
+        <button id="mode-single" class="active">1 page</button>
+        <button id="mode-double">2 pages</button>
+        <button id="mode-scroll">Scroll</button>
       </div>
-      <button class="reader-btn" id="toggle-thumbs-btn">⬜</button>
-      <button class="reader-btn" id="settings-btn">⚙</button>
+      <button class="reader-btn" id="toggle-thumbs-btn" aria-label="Show page thumbnails"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg><span class="lbl">Pages</span></button>
+      <button class="reader-btn" id="settings-btn" aria-label="Settings"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button>
     </div>
   </header>
 
   <div class="reader-content" id="reader-content"></div>
 
   <div class="nav-overlay" id="nav-overlay">
-    <button class="nav-btn" id="prev-btn">← PREV</button>
+    <button class="nav-btn" id="prev-btn">← Previous</button>
     <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
       <div class="page-indicator" id="page-indicator">— / —</div>
       <input type="range" id="page-scrubber" min="0" max="0" value="0"
              style="width:100%;max-width:420px;accent-color:var(--accent)">
     </div>
-    <button class="nav-btn" id="next-btn">NEXT →</button>
+    <button class="nav-btn" id="next-btn">Next →</button>
   </div>
 
   <div class="thumb-strip" id="thumb-strip"></div>
@@ -878,15 +979,15 @@
     <kbd>←</kbd><kbd>→</kbd> Navigate<br>
     <kbd>Home</kbd><kbd>End</kbd> First/Last<br>
     <kbd>F</kbd> Fullscreen · <kbd>D</kbd> Dir<br>
-    <kbd>S</kbd> Star · <kbd>Z</kbd> Zoom<br>
+    <kbd>S</kbd> Favourite<br>
     <kbd>?</kbd> Toggle hints
   </div>
 </div>
 
 <!-- ══════════════════ DETAIL POPUP ══════════════════ -->
-<div id="detail-overlay">
+<dialog id="detail-overlay" aria-label="Manga details">
   <div id="detail-popup">
-    <button class="detail-close" id="detail-close-btn">✕</button>
+    <button class="detail-close" id="detail-close-btn" aria-label="Close details"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button>
     <div class="detail-cover">
       <img id="detail-cover-img" src="" alt="">
       <div class="detail-cover-title" id="detail-cover-title"></div>
@@ -922,27 +1023,28 @@
       </div>
     </div>
     <div class="detail-actions">
-      <button class="btn btn-primary" id="detail-read-btn" style="flex:1">▶ READ</button>
-      <button class="btn" id="detail-fav-btn" style="min-width:80px">☆ FAV</button>
+      <button class="btn btn-primary" id="detail-read-btn" style="flex:1">Start reading</button>
+      <button class="btn" id="detail-fav-btn">☆ Add to favourites</button>
     </div>
   </div>
-</div>
+</dialog>
 
 <!-- Settings -->
 <div id="settings-panel">
   <div class="settings-title">Settings</div>
   <div class="setting-row">
-    <span class="setting-label">Background color</span>
-    <input type="color" id="bg-color" class="setting-input" value="#000000" style="height:32px;padding:2px">
+    <span class="setting-label">Reader background</span>
+    <input type="color" id="bg-color" class="setting-input" value="#111314" aria-label="Reader background colour" style="height:48px;padding:2px">
   </div>
   <div class="setting-row">
     <label class="checkbox-row"><input type="checkbox" id="fit-width"> <label for="fit-width">Fit to width</label></label>
     <label class="checkbox-row"><input type="checkbox" id="auto-double"> <label for="auto-double">Auto-double on wide screen</label></label>
   </div>
-  <button class="btn btn-primary" id="close-settings-btn" style="width:100%;margin-top:14px">Close</button>
+  <div class="setting-row"><span class="setting-label" id="theme-label">Colour theme, from Sanzo Wada’s Dictionary of Color Combinations</span><div id="theme-list" role="radiogroup" aria-labelledby="theme-label"></div></div>
+  <button class="btn btn-primary" id="close-settings-btn" style="width:100%;margin-top:16px">Close settings</button>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file-input" multiple webkitdirectory style="display:none" accept="image/*">
 
 <script>
@@ -1070,6 +1172,28 @@ const scrollProg    = $('scroll-progress');
 const favReaderBtn  = $('fav-reader-btn');
 const detailOverlay = $('detail-overlay');
 const settingsPanel = $('settings-panel');
+const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ic = n => `<svg class="i" aria-hidden="true"><use href="#${n}"/></svg>`;
+const THEMES = [
+  {id:'ink',   name:'Ink and vermilion',     no:190, c:['#111314','#ebd3a2','#d96629']},
+  {id:'slate', name:'Slate green and coral', no:166, c:['#112f2c','#fbe6a0','#f48067']},
+  {id:'olive', name:'Olive and salvia',      no:321, c:['#253122','#f5ecc2','#97acc8']},
+];
+function applyTheme(id, save) {
+  const t = THEMES.find(x => x.id === id) || THEMES[0];
+  document.documentElement.dataset.theme = t.id;
+  document.querySelector('meta[name=theme-color]').content = t.c[0];
+  document.querySelectorAll('.theme-opt').forEach(b => b.setAttribute('aria-checked', b.dataset.id === t.id));
+  if (save) savePrefs();
+}
+THEMES.forEach(t => {
+  const b = document.createElement('button');
+  b.className = 'theme-opt'; b.dataset.id = t.id; b.setAttribute('role', 'radio');
+  b.innerHTML = '<span class="sw">' + t.c.map(c => `<i style="background:${c}"></i>`).join('') + `</span><span>${t.name}<br><small>No. ${t.no}</small></span>`;
+  b.addEventListener('click', () => applyTheme(t.id, true));
+  $('theme-list').appendChild(b);
+});
+function setDelBtn(on) { $('delete-mode-btn').innerHTML = ic(on ? 'i-close' : 'i-trash') + `<span class="lbl">${on ? 'Cancel' : 'Delete'}</span>`; }
 
 // ══════════════════════════════════════════════
 //  INIT
@@ -1088,7 +1212,8 @@ async function init() {
     state.rtl       = v.rtl       ?? true;
     state.fitWidth  = v.fitWidth  || false;
     state.filterFavOnly = v.filterFavOnly || false;
-    if (v.bgColor) readerView.style.background = readerContent.style.background = v.bgColor;
+    applyTheme(v.theme);
+    if (v.bgColor && v.bgColor !== '#000000') { state.bgCustom = true; $('bg-color').value = v.bgColor; readerView.style.background = readerContent.style.background = v.bgColor; }
     $('fit-width').checked = state.fitWidth;
     $('filter-fav-only').classList.toggle('active', state.filterFavOnly);
   }
@@ -1150,7 +1275,7 @@ $('file-input').addEventListener('change', e => {
 });
 
 async function loadFromHandle(handle) {
-  showToast('⏳ Loading…');
+  showToast('Loading…');
   const files = await readDirHandle(handle, handle.name);
   if (!files.length) { showToast('No images found in folder'); return; }
   processFiles(files);
@@ -1164,12 +1289,12 @@ function showReloadBanner() {
   if (!el) {
     el = document.createElement('div');
     el.id='reload-banner';
-    el.style.cssText='position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--panel-bg);border-top:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:0.7rem;';
-    document.body.appendChild(el);
+    el.style.cssText='background:var(--panel-surface);border:1px solid var(--panel-border);border-left:4px solid var(--accent);border-radius:12px;padding:16px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:16px;';
+    document.querySelector('.library-body').prepend(el);
   }
   el.innerHTML='';
-  const msg=document.createElement('span'); msg.style.cssText='color:var(--gray);flex:1;'; msg.textContent='🔒 Click to restore file access';
-  const btn=document.createElement('button'); btn.style.cssText="font-size:0.7rem;padding:6px 16px;background:var(--accent);border:none;color:#fff;cursor:pointer;"; btn.textContent='📂 Load Files';
+  const msg=document.createElement('span'); msg.style.cssText='color:var(--text);flex:1;'; msg.textContent='Restore file access to keep reading your library.';
+  const btn=document.createElement('button'); btn.style.cssText="font-family:inherit;font-size:17px;font-weight:600;min-height:48px;padding:0 24px;border-radius:24px;background:var(--accent);border:none;color:var(--on-accent);cursor:pointer;"; btn.textContent='Load files';
   btn.addEventListener('click',async()=>{
     let ok=false;
     for (const h of savedDirHandles) if (await ensurePermission(h)) { await loadFromHandle(h); ok=true; }
@@ -1242,7 +1367,7 @@ function processFiles(files) {
   }
   state.library.sort((a,b)=>a.parsed.title.localeCompare(b.parsed.title,undefined,{numeric:true}));
   renderLibrary();
-  showToast(`✓ ${count} manga loaded`);
+  showToast(`${count} manga loaded`);
 }
 
 // ══════════════════════════════════════════════
@@ -1252,14 +1377,14 @@ function renderLibrary() {
   const has=state.library.length>0;
   emptyState.style.display  =has?'none':'flex';
   mangaSection.style.display=has?'block':'none';
-  $('manga-count-label').textContent=`LIBRARY — ${state.library.length} MANGA`;
+  $('manga-count-label').textContent=`Library · ${state.library.length} manga`;
 
   const allArtists=[...new Set(state.library.flatMap(m=>m.parsed.artists||[]))].sort();
   const allLangs  =[...new Set(state.library.flatMap(m=>m.parsed.langs||[]))].sort();
   const asel=$('artist-filter'), lsel=$('lang-filter');
   const ca=asel.value, cl=lsel.value;
-  asel.innerHTML='<option value="">All Artists</option>'+allArtists.map(a=>`<option value="${a}">${a}</option>`).join('');
-  lsel.innerHTML='<option value="">All Languages</option>'+allLangs.map(l=>`<option value="${l}">${l}</option>`).join('');
+  asel.innerHTML='<option value="">All Artists</option>'+allArtists.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
+  lsel.innerHTML='<option value="">All Languages</option>'+allLangs.map(l=>`<option value="${esc(l)}">${esc(l)}</option>`).join('');
   asel.value=ca; lsel.value=cl;
 
   mangaGrid.innerHTML='';
@@ -1279,7 +1404,7 @@ function makeCard(manga, idx) {
   const {title,artists=[],langs=[]}=manga.parsed;
 
   const card=document.createElement('div');
-  card.className='manga-card';
+  card.className='manga-card';card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label',title);card.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target===card)card.click();});
   card.dataset.title    =title.toLowerCase();
   card.dataset.artists  =artists.join(',').toLowerCase();
   card.dataset.langs    =langs.join(',').toLowerCase();
@@ -1289,27 +1414,27 @@ function makeCard(manga, idx) {
 
   card.innerHTML=`
     <div class="manga-thumb${isSkeleton?' skeleton-thumb':''}">
-      ${manga.thumb?`<img src="${manga.thumb}" alt="${title}" loading="lazy">`:`<div class="no-cover">📖</div>`}
+      ${manga.thumb?`<img src="${manga.thumb}" alt="${esc(title)}" loading="lazy">`:`<div class="no-cover">${ic('i-book')}</div>`}
       <div class="page-count">${total}p</div>
-      ${langs[0]?`<div class="lang-badge">${langs[0]}</div>`:''}
-      <button class="fav-star ${isFav?'active':''}" title="Favourite">${isFav?'★':'☆'}</button>
-      ${state.newItems.has(manga.name)?'<div class="new-badge">★ NEW</div>':''}
+      ${langs[0]?`<div class="lang-badge">${esc(langs[0])}</div>`:''}
+      <button class="fav-star ${isFav?'active':''}" title="Favourite" aria-label="Favourite">${isFav?'★':'☆'}</button>
+      ${state.newItems.has(manga.name)?'<div class="new-badge">New</div>':''}
       <button class="info-btn" title="Details">ⓘ</button>
       <div class="select-checkbox">✓</div>
-      ${isSkeleton?'<div class="skeleton-lock">🔒</div>':''}
+      ${isSkeleton?`<div class="skeleton-lock">${ic('i-lock')}</div>`:''}
     </div>
     <div class="card-progress"><div class="card-progress-fill" style="width:${pct.toFixed(1)}%"></div></div>
-    <div class="manga-card-title" title="${title}">${title}</div>
+    <div class="manga-card-title" title="${esc(title)}">${esc(title)}</div>
     <div class="manga-card-meta">
-      ${artists[0]?`<span class="meta-artist">✏ ${artists[0]}</span>`:''}
-      ${langs[0]?`<span class="meta-lang">${langs[0]}</span>`:''}
+      ${artists[0]?`<span class="meta-artist">${esc(artists[0])}</span>`:''}
+      ${langs[0]?`<span class="meta-lang">${esc(langs[0])}</span>`:''}
     </div>`;
 
   card.addEventListener('click', e=>{
     if (deleteMode) { toggleCardSelect(card); return; }
     if (e.target.closest('.fav-star')) { e.stopPropagation(); toggleFav(manga.name); renderLibrary(); return; }
     if (e.target.closest('.info-btn')) { e.stopPropagation(); openDetail(idx); return; }
-    if (isSkeleton) { showToast('📂 Click "Load Files" to restore reading access'); return; }
+    if (isSkeleton) { showToast('Choose "Load files" to restore reading access'); return; }
     openManga(idx);
   });
 
@@ -1418,30 +1543,31 @@ function openDetail(index) {
     $('detail-row-'+rowId).style.display=items.length?'flex':'none';
     if(items.length) $(valId).innerHTML=items.map(fn).join('');
   };
-  showRow('artist','detail-artist',artists,a=>`<span class="detail-tag artist-tag" onclick="filterBy('artist','${a.replace(/'/g,"\\'")}')")>✏ ${a}</span>`);
-  showRow('lang','detail-lang',langs,l=>`<span class="detail-tag lang-tag" onclick="filterBy('lang','${l.replace(/'/g,"\\'")}')")>🌐 ${l}</span>`);
-  showRow('tags','detail-tags',tags,t=>`<span class="detail-tag">${t}</span>`);
+  showRow('artist','detail-artist',artists,a=>`<button class="detail-tag artist-tag" data-f="artist" data-v="${esc(a)}">${esc(a)}</button>`);
+  showRow('lang','detail-lang',langs,l=>`<button class="detail-tag lang-tag" data-f="lang" data-v="${esc(l)}">${esc(l)}</button>`);
+  showRow('tags','detail-tags',tags,t=>`<span class="detail-tag">${esc(t)}</span>`);
 
   $('detail-pages').textContent=`${total} pages`;
+  $('detail-read-btn').textContent=prog>0?'Continue reading':'Start reading';
   $('detail-raw').textContent=raw||manga.name;
   $('detail-prog-text').textContent=prog>0?`Page ${prog+1} / ${total}`:'Not started';
   $('detail-prog-fill').style.width=pct.toFixed(1)+'%';
   updateDetailFavBtn();
-  detailOverlay.classList.add('open');
+  detailOverlay.showModal();
 }
 
 function updateDetailFavBtn() {
   const manga=state.library[state.detailIndex]; if(!manga)return;
   const on=state.favs.has(manga.name);
   const btn=$('detail-fav-btn');
-  btn.textContent=on?'★ FAV':'☆ FAV';
+  btn.textContent=on?'★ Remove from favourites':'☆ Add to favourites';
   btn.style.color=on?'var(--gold)':'';
   btn.style.borderColor=on?'var(--gold)':'';
 }
 
-function closeDetail(){detailOverlay.classList.remove('open');}
+function closeDetail(){if(detailOverlay.open)detailOverlay.close();}
 $('detail-close-btn').addEventListener('click',closeDetail);
-detailOverlay.addEventListener('click',e=>{if(e.target===detailOverlay)closeDetail();});
+detailOverlay.addEventListener('click',e=>{if(e.target===detailOverlay){closeDetail();return;}const t=e.target.closest('[data-f]');if(t)filterBy(t.dataset.f,t.dataset.v);});
 $('detail-read-btn').addEventListener('click',()=>{closeDetail();openManga(state.detailIndex);});
 $('detail-fav-btn').addEventListener('click',()=>{
   const m=state.library[state.detailIndex];if(!m)return;
@@ -1463,7 +1589,7 @@ const selectedForDelete=new Set();
 function enterDeleteMode(){
   deleteMode=true; selectedForDelete.clear();
   $('delete-mode-btn').classList.add('delete-mode-btn-active');
-  $('delete-mode-btn').textContent='✕';
+  setDelBtn(true);
   $('delete-toolbar').classList.add('visible');
   updateDeleteCount();
   mangaGrid.querySelectorAll('.manga-card').forEach(c=>c.classList.add('selectable'));
@@ -1471,7 +1597,7 @@ function enterDeleteMode(){
 function exitDeleteMode(){
   deleteMode=false; selectedForDelete.clear();
   $('delete-mode-btn').classList.remove('delete-mode-btn-active');
-  $('delete-mode-btn').textContent='🗑';
+  setDelBtn(false);
   $('delete-toolbar').classList.remove('visible');
   mangaGrid.querySelectorAll('.manga-card').forEach(c=>c.classList.remove('selectable','selected'));
 }
@@ -1496,7 +1622,7 @@ $('delete-select-all-btn').addEventListener('click',()=>{
     if(allSel){selectedForDelete.delete(name);card.classList.remove('selected');}
     else{selectedForDelete.add(name);card.classList.add('selected');}
   });
-  $('delete-select-all-btn').textContent=allSel?'Select All':'Deselect All';
+  $('delete-select-all-btn').textContent=allSel?'Select all':'Deselect all';
   updateDeleteCount();
 });
 $('delete-confirm-btn').addEventListener('click',()=>{
@@ -1512,10 +1638,10 @@ $('delete-confirm-btn').addEventListener('click',()=>{
   });
   deleteMode=false; selectedForDelete.clear();
   $('delete-mode-btn').classList.remove('delete-mode-btn-active');
-  $('delete-mode-btn').textContent='🗑';
+  setDelBtn(false);
   $('delete-toolbar').classList.remove('visible');
   renderLibrary();
-  showToast(`🗑 Deleted ${count} manga`);
+  showToast(`Deleted ${count} manga`);
 });
 
 // ══════════════════════════════════════════════
@@ -1523,7 +1649,7 @@ $('delete-confirm-btn').addEventListener('click',()=>{
 // ══════════════════════════════════════════════
 function openManga(index) {
   const manga=state.library[index];
-  if (!manga||manga.skeleton){showToast('📂 Click "Load Files" to restore reading access');return;}
+  if (!manga||manga.skeleton){showToast('Choose "Load files" to restore reading access');return;}
   state.currentManga=index;
   state.currentPage=Math.min(state.progress[manga.name]||0, manga.pages.length-1);
 
@@ -1546,7 +1672,7 @@ function openManga(index) {
   (manga.parsed.artists||[]).forEach(artist => {
     const chip = document.createElement('button');
     chip.className = 'reader-artist-chip';
-    chip.textContent = '✏ ' + artist;
+    chip.textContent = artist;
     chip.title = `Show all manga by ${artist}`;
     chip.addEventListener('click', () => {
       closeReader();
@@ -1610,7 +1736,7 @@ function applyModeStyles(mode){
   scrollProg.style.display      =sc?'block':'none';
   $('nav-overlay').style.display=sc?'none':'flex';
   readerContent.style.overflowY ='auto';
-  readerContent.style.height    ='calc(100vh - 48px)';
+  readerContent.style.height    ='calc(100dvh - var(--hdr))';
 }
 function setMode(mode){applyModeStyles(mode);renderPage();savePrefs();}
 $('mode-single').addEventListener('click',()=>setMode('single'));
@@ -1638,7 +1764,7 @@ function renderPage(){
   if(state.mode==='scroll'){
     urls.forEach((url,i)=>{
       const img=makeImg(url,pages[i]);
-      img.style.cssText='width:100%;max-width:800px;display:block;margin:0 auto;border-bottom:3px solid #111;';
+      img.style.cssText='width:100%;max-width:800px;display:block;margin:0 auto;border-bottom:3px solid var(--ink);';
       readerContent.appendChild(img);
     });
     readerContent.scrollTop=0;
@@ -1653,16 +1779,17 @@ function renderPage(){
     (state.rtl?[p+1,p]:[p,p+1]).forEach(pi=>{
       if(pi<0||pi>=total)return;
       const img=makeImg(urls[pi],pages[pi]);
-      img.style.cssText='max-width:49%;max-height:calc(100vh - 88px);object-fit:contain;';
+      img.style.cssText='max-width:49%;max-height:calc(100dvh - var(--hdr));object-fit:contain;';
       wrap.appendChild(img);
     });
   } else {
     const img=makeImg(urls[p],pages[p]);
-    img.style.cssText=`max-width:${state.fitWidth?'100%':'min(100%,820px)'};max-height:calc(100vh - 88px);object-fit:contain;`;
+    img.style.cssText=`max-width:${state.fitWidth?'100%':'min(100%,820px)'};max-height:calc(100dvh - var(--hdr));object-fit:contain;`;
     img.addEventListener('click',e=>{
       const r=wrap.getBoundingClientRect(),x=e.clientX-r.left;
       if(x<r.width*0.35) state.rtl?nextPage():prevPage();
       else if(x>r.width*0.65) state.rtl?prevPage():nextPage();
+      else readerView.classList.toggle('touch-show');
     });
     wrap.appendChild(img);
   }
@@ -1672,7 +1799,7 @@ function renderPage(){
   pageScrubber.value=p;
   prevBtn.disabled=p===0;
   nextBtn.disabled=state.mode==='double'?p+2>=total:p+1>=total;
-  $('dir-display').textContent=state.rtl?'RTL':'LTR';
+  $('dir-display').textContent=state.rtl?'Right to left':'Left to right';
   document.querySelectorAll('.thumb-item').forEach(el=>el.classList.toggle('active',+el.dataset.idx===p));
   thumbStrip.querySelector('.thumb-item.active')?.scrollIntoView({inline:'center',behavior:'smooth'});
   saveProgress();
@@ -1689,6 +1816,7 @@ prevBtn.addEventListener('click',()=>state.rtl?nextPage():prevPage());
 nextBtn.addEventListener('click',()=>state.rtl?prevPage():nextPage());
 pageScrubber.addEventListener('input',()=>goToPage(+pageScrubber.value));
 $('dir-display').addEventListener('click',()=>{state.rtl=!state.rtl;renderPage();savePrefs();});
+$('dir-display').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('dir-display').click();}});
 readerContent.addEventListener('scroll',()=>{if(state.mode==='scroll')updateScrollPct();});
 function updateScrollPct(){const el=readerContent;scrollProg.style.width=(el.scrollHeight<=el.clientHeight?0:el.scrollTop/(el.scrollHeight-el.clientHeight)*100)+'%';}
 $('toggle-thumbs-btn').addEventListener('click',()=>{state.thumbsVisible=!state.thumbsVisible;thumbStrip.classList.toggle('visible',state.thumbsVisible);});
@@ -1697,7 +1825,7 @@ $('toggle-thumbs-btn').addEventListener('click',()=>{state.thumbsVisible=!state.
 //  KEYBOARD
 // ══════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
-  if(detailOverlay.classList.contains('open')){if(e.key==='Escape')closeDetail();return;}
+  if(detailOverlay.open)return;
   if(readerView.style.display==='none')return;
   if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;
   switch(e.key){
@@ -1710,6 +1838,7 @@ document.addEventListener('keydown',e=>{
     case 'f':case 'F':toggleFullscreen();break;
     case 'd':case 'D':state.rtl=!state.rtl;renderPage();savePrefs();break;
     case 's':case 'S':{const m=state.library[state.currentManga];if(m){toggleFav(m.name);renderLibrary();}break;}
+    case '?':$('keyboard-hint').classList.toggle('visible');break;
     case 'Escape':settingsPanel.classList.remove('open');break;
   }
 });
@@ -1739,12 +1868,13 @@ function toggleFullscreen(){
 function savePrefs(){
   idbPut('settings',{key:'prefs',value:{
     mode:state.mode, rtl:state.rtl, fitWidth:state.fitWidth,
-    filterFavOnly:state.filterFavOnly, bgColor:$('bg-color').value,
+    filterFavOnly:state.filterFavOnly, bgColor:state.bgCustom?$('bg-color').value:'', theme:document.documentElement.dataset.theme,
   }});
 }
 $('settings-btn').addEventListener('click',()=>settingsPanel.classList.toggle('open'));
+$('lib-settings-btn').addEventListener('click',()=>settingsPanel.classList.toggle('open'));
 $('close-settings-btn').addEventListener('click',()=>settingsPanel.classList.remove('open'));
-$('bg-color').addEventListener('input',e=>{readerView.style.background=readerContent.style.background=e.target.value;savePrefs();});
+$('bg-color').addEventListener('input',e=>{state.bgCustom=true;readerView.style.background=readerContent.style.background=e.target.value;savePrefs();});
 $('fit-width').addEventListener('change',e=>{state.fitWidth=e.target.checked;renderPage();savePrefs();});
 $('auto-double').addEventListener('change',e=>{if(e.target.checked&&window.innerWidth>1000)setMode('double');});
 
